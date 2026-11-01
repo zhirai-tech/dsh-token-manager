@@ -1,7 +1,8 @@
 # DSH Token Manager
 
 [![DSH](https://img.shields.io/badge/DeepSeek%20Harness-0.2.x-4c6ef5)](https://github.com/deepseek-ai/deepseek-harness)
-[![Tests](https://img.shields.io/badge/tests-231%20passing-2f9e44)](#开发)
+[![Tests](https://img.shields.io/badge/tests-231%20passing-2f9e44)](#发行版说明)
+[![License](https://img.shields.io/badge/license-proprietary%20(UNLICENSED)-868e96)](#许可)
 
 **DeepSeek Harness（DSH）的 Token 成本监控、模型调用效率分析与可逆工具输出缓存插件。**
 
@@ -19,155 +20,108 @@ ZHIRAI · 智睿科技 · 独立开发者
 
 ![A/B 实测](docs/screenshots/annotated-05-ab.png)
 
-> 截图来自真实运行的 DSH 桌面应用：**左边是插件未启动，右边是插件启用后**（同一台机器，仅切换插件）。A/B 图来自真实模型调用对照：**44,067 → 30,068 token（−31.8%），两组回答完全一致**。
+> 截图来自真实运行的 DSH 桌面应用：**左边插件未启动，右边插件启用后**（同一台机器，仅切换插件）。A/B 图来自真实模型调用对照：**44,067 → 30,068 token（−31.8%），两组回答完全一致**。
 
 ---
 
 ## 它解决什么问题
 
-DSH 每次模型调用都会产生四类 Token：未命中输入、缓存命中、缓存写入、输出。官方界面只给一个总数，历史会随着会话压缩而消失；工具输出、重复读文件、重复构建/测试、简单任务步骤膨胀这些“钱漏在哪”更难看清。
+在不修改模型、不降推理等级、不改 Harness 核心与 dsh-mnemon 的前提下，回答四个问题：
 
-本插件在不改动 Harness 核心、不改模型、不降推理等级的前提下，做三件事：
+1. **Token 花在哪了？** 逐调用四桶台账，按任务 / 会话 / 项目 / 今日 / 历史累计。
+2. **哪些调用在浪费？** 11 类发现：重复读文件、重复工具、重复构建/测试/部署、多次确认、重复计划/总结、简单任务步骤膨胀、缓存命中下降、任务成本异常等。
+3. **哪些可以安全压缩？** 大段命令/构建/测试/日志输出替换为结构化摘要，原文随时可用 `token_manager_read` 恢复。
+4. **花了多少、省了多少？** 按你的价格表算任务费用，并估算压缩节省的 Token 与费用。
 
 | 模块 | 能力 |
 |---|---|
-| **计量** | 逐调用记录四桶 Token、耗时、provider/model、turn/step，按 `(session,turn,step,attempt)` 去重；与官方 `tokenUsage` 投影逐字段核对一致 |
-| **分析** | 11 类调用效率发现：重复读文件、重复工具、重复构建/测试/部署、多次确认、重复计划/总结、步骤膨胀、缓存命中下降、任务成本异常等；每类可单独开关与设阈值 |
-| **优化** | 大工具输出 → 内容寻址 blob + 摘要（默认观察模式，可手动开启自动压缩）；原文随时可通过 `token_manager_read` 恢复；上下文去重只做 dry-run 检测，不修改会话 |
-| **任务/项目** | 每个用户轮次自动生成任务 + 手动任务/合并；5 类任务分类；9 段任务摘要；8 段项目摘要（版本化）；JSON/Markdown/CSV 导出 |
-| **界面** | 深色中文仪表盘：总览/调用明细/任务/工具缓存/上下文分析/成本分析/设置；1600/897/390 三档自适应；说明文案收进 `?` |
+| **计量** | 逐调用四桶（未命中输入 / 缓存命中 / 缓存写入 / 输出），按 `(session, turn, step, attempt)` 去重；与官方 `tokenUsage` 逐字段核对一致 |
+| **效率分析** | 11 类发现，可单独开关与设阈值；5 类任务 + 同类型历史基线（median / p80） |
+| **压缩 2.0** | 按 shell 输出分类（文件列表、JSON/JSONL、Markdown、git diff/log、构建、测试、日志）；**所有错误/警告行带原始行号保留**；`read` 结果与错误结果**永不压缩**；历史前缀**永不重写** |
+| **恢复** | 内容寻址 blob；`token_manager_read` 按 blob id 分页读取，或读取会话工作目录内文件 |
+| **任务/项目** | 任务合并、9 段任务摘要、8 段版本化项目摘要、JSON/Markdown/CSV 导出 |
+| **界面** | 中文深色仪表盘、顶部实时条、1600/897/390 自适应、说明收进 `?` |
 
-## 数字为什么可信
+## 实测数据（不是宣传数字）
 
-1. **同源**：直接读 Harness 自己的用量事件，不按文本长度估算；
-2. **可核对**：逐调用汇总与官方 `tokenUsage.totals` 完全一致（真实 49 个历史会话交叉验证，0 误差）；
-3. **不虚构节省**：每个“节省”都来自具体 blob（原始大小 − 压缩后大小），缓存页可按会话核对；
-4. **可逆**：卸载后监听器、路由、工具、UI 全部移除，数据保留在 `~/.dsh/dsh-token-manager/`，可随时删除。
+| 场景 | 结果 |
+|---|---|
+| A/B：同一命令，压缩关 → 开 | **44,067 → 30,068 token（−31.8%）**，两组回答完全一致 |
+| 准确性核对：1500 行输出，问行数 + 第 777 行原文 | 两种模式回答**完全一致且正确**（1500 行、原文精确、ERROR 1 / WARNING 1） |
+| 真实 493k token 会话（12 条 shell 输出离线审计） | 521,347 B → 169,738 B（**−67.4%**），错误/警告行保留 **20/20** |
+| 历史项目累计可避免 Token（估算） | 大型/长会话 **30%–50%**，小项目 **5%–15%** |
 
-### 实测示例（同 profile、同提示词、单次对照）
+> 历史项目百分比是按“被压缩 Token × 后续携带它的调用次数”的离线估算；A/B 是真实模型调用。费用取决于你的套餐，内置价格是公开参考价、不是实时账单。
 
-任务：执行 pwsh 生成约 64KB 输出后作答。
+## 发行版说明
 
-| 组 | 插件 | 压缩 | 调用 | 未命中输入 | 缓存命中 | 输出 | **合计 Token** |
-|---|---|---|---|---|---|---|---|
-| A | 关 | — | 2 | 20,988 | 22,784 | 295 | **44,067** |
-| B | 开 | 观察 | 2 | 21,031 | 23,296 | 526 | **44,853** |
-| C | 开 | 自动压缩 | 2 | 1,566 | 28,416 | 86 | **30,068** |
+本仓库是**发行版**，不是开源仓库：
 
-- 只监控几乎不增加消耗（+1.8%，主要是一个工具 schema 与模型输出波动）；
-- 自动压缩让第二次调用从 ~29.7K 降到 ~15.6K Token（本次整体 −31.8%）；
-- 这是**单次演示**，不是统计结论；完整协议与边界见 [docs/DEMO_AB_TEST.md](docs/DEMO_AB_TEST.md)。
-
-## 仓库结构
+- `lib/` 是编译压缩后的 host/client 产物（DSH 实际加载的文件）；
+- `src/`、`tests/` 只有说明文件——源码与测试**不公开**；
+- `scripts/` 是两个真实可用的辅助脚本；
+- 插件为专有软件（**UNLICENSED**，保留所有权利）。
 
 | 路径 | 内容 |
 |---|---|
-| `lib/` | 编译压缩后的插件产物（DSH 实际加载的文件） |
-| `src/` | 仅说明文件：源码不随仓库发布（专有软件） |
-| `tests/` | 仅说明文件：测试套件与覆盖范围说明，不包含测试源码 |
-| `scripts/` | 可直接使用的辅助脚本：`token-report.mjs`（逐调用 Token 报告）、`install-sandbox.ps1`（隔离 profile 安装） |
+| `lib/` | `index.js`（host，197KB）、`client.js`（浏览器，188KB），已压缩 |
+| `src/` | 仅说明：源码不发布 |
+| `tests/` | 仅说明：测试套件概况（231 项），不含测试源码 |
+| `scripts/` | `token-report.mjs`（逐调用 Token 报告）、`install-sandbox.ps1`（隔离 profile 安装） |
 | `locale/` | 中英文语言包 |
-| `docs/` | 安装、配置、故障排查、压缩报告、市场说明、视频脚本与截图 |
+| `docs/` | 安装、配置、故障排查、压缩 2.0 报告、市场说明、视频脚本、截图 |
 | `.github/` | Issue 模板 |
-
-> 本仓库是**发行版**，不是开源仓库；源码不公开，但上述目录与脚本是真实、可用的。
 
 ## 安装
 
-### 方式 1：从本仓库安装（开发推荐）
-
 ```bash
+# 从本仓库安装（链接式开发安装）
 dsh plugin --profile <profile> add "file:<本仓库绝对路径>"
+
+# 或从 Release 包安装
+#   下载 dsh-token-manager-1.3.1.zip 解压，再安装解压目录
 dsh <profile> --no-open
 ```
 
-或在 DSH 桌面版：设置 → 插件 → 从本地目录安装，选择本仓库根目录。
+或在 DSH 桌面版：设置 → 插件 → 从本地目录安装。
 
-### 方式 2：从发布包安装
+验证：左栏出现「Token 监控」，`/token-manager/api/health` 返回 `ok: true`。
 
-到 [Releases](../../releases) 下载 `dsh-token-manager-1.0.0.zip`，解压到任意目录，按方式 1 安装该目录。
+完整步骤、升级、卸载见 [docs/INSTALL.md](docs/INSTALL.md)。
 
-### 验证
+### 环境要求
 
-- 左栏出现「Token 监控」；
-- 同源访问 `/token-manager/api/health` 返回 `ok: true`；
-- 发一条真实消息后，「调用明细」出现带四桶的记录。
+DeepSeek Harness `0.2.x`（本机验证 0.2.1-rc.5）、DSH 自带 Node.js 24.x、无需联网、无需 API Key。
 
-完整安装/升级/卸载见 [docs/INSTALL.md](docs/INSTALL.md)。
+## 配置
 
-## 配置（30 秒）
+全部在「Token 监控 → 设置」：采集开关、11 类分析开关与阈值、价格表（四桶 / 币种 / 单位）、压缩模式（关闭 / 观察 / 启用）与阈值、缓存上限、上下文分析（仅 dry-run）。
 
-全部在「Token 监控 → 设置」：
-
-| 配置 | 默认 | 说明 |
-|---|---|---|
-| 采集开关 | 开 | 关闭后不再写入新记录，历史保留 |
-| 观察模式 | 开 | 只分析，不改模型上下文 |
-| 重复读/工具/命令次数 | 2 | 达到即记为发现项 |
-| 步骤膨胀 | 1.5× + 6/15 次 | 简单修改/普通开发的步骤膨胀检测 |
-| 压缩模式 | **观察** | 关闭 / 观察（只存） / 启用（替换为摘要） |
-| 压缩阈值 | 2KB / 10KB / 50KB | 最小 / 选择性 / 智能 |
-| 缓存上限/保留 | 512MB / 30 天 | blob 目录限制 |
-| 价格表 | 空 | 填你自己的账单单价；未配置显示“价格未配置”，绝不虚构 |
-| 上下文分析 | 仅检测 | 只检测重复与 KV Cache 风险，不修改会话 |
+默认是安全模式：监控开、**压缩为观察模式**（只记录不替换）、上下文分析只检测。自动压缩需手动开启。
 
 逐项说明见 [docs/CONFIG.md](docs/CONFIG.md)。
 
 ## 兼容与安全
 
 - **不改核心**：不修改 Harness 核心、dsh-mnemon、模型配置与推理等级；
-- **默认观察**：自动压缩必须手动开启；上下文分析没有任何“应用改写”通道；
-- **与 dsh-mnemon 共存**：mnemon 注入消息（`source.kind = "dsh-mnemon"`）标记为“受保护”，不压缩、不去重、不删除（真实会话哈希前后一致，见 [Phase 5 报告](docs/PHASE5_TEST_REPORT.md)）；
-- **数据本地**：`~/.dsh/dsh-token-manager/`（SQLite + 内容寻址 blob），无遥测、无网络请求；
-- **HTTP 边界**：所有请求经 DSH 连接围栏；`token_manager_read` 校验会话归属、路径限制在会话工作目录；
-- **完全可逆**：卸载后无残留；数据保留到用户删除。
+- **与 dsh-mnemon 共存**：mnemon 注入消息标记为受保护，不压缩、不去重、不删除（真实会话哈希前后一致）；
+- **数据本地**：`%DSH_HOME%\dsh-token-manager\`（SQLite + 内容寻址 blob），无遥测、无网络请求；
+- **HTTP 边界**：所有请求经 DSH 连接围栏；`token_manager_read` 校验会话归属、路径限制在工作目录；
+- **可逆**：卸载后监听器、路由、工具、UI 全部移除，数据保留到用户删除。
 
-## 架构
+## 市场
 
-```
-src/
-  index.ts              Cordis 入口：inject tools、装配服务、注册监听/工具/HTTP
-  shared/               host 与 client 共用的类型、契约、常量
-  storage/              SQLite schema/迁移（v0→v4）、blob 存储、仓库层
-  host/                 用量台账、任务管理、费用计算、分析器、基线、报告、
-                        HTTP API、工具缓存、read 工具、上下文分析、任务/项目服务
-  client/               React 仪表盘（main + sidebar.panellist 槽位，7 个顶层标签）
-tests/                  216 项单元测试 + 真实历史交叉核对
-scripts/                构建、测试构建、token-report、隔离 profile 安装脚本
-docs/                   安装/配置/故障排查/交付/各阶段报告/截图
-```
-
-只使用公开 Cordis 扩展点：`session/event`、`tools/post-execute`、`tools/result`、`ctx.tools.register`、`tokenMeter.measure`、`ctx.connection`、客户端槽位注册。
-
-## 开发
-
-```bash
-npm install
-npm run build        # 构建 host + client
-npm test             # 216 项单元测试
-npm run test:integration   # 真实历史交叉核对
-npx tsc --noEmit     # 类型检查
-node scripts/token-report.mjs 2   # 查看最近两个会话的逐调用 Token（不依赖插件）
-```
-
-各阶段设计与测试报告在 [`docs/`](docs/)（中文）。
-
-## 发布到 DSH 插件市场
-
-DSH 市场本质是一个 **JSON 索引文件**，放到任意静态主机即可；用户在「插件 → 发现 → 添加索引源」填入 URL 就能看到并安装。
-
-本仓库已内置索引：[`docs/market/index.json`](docs/market/index.json)（Git 源，无需 npm 账号）。开启 GitHub Pages（main 分支 `/docs` 目录）后，索引 URL 为：
+DSH 市场本质是一个 JSON 索引，本仓库内置：
 
 ```
 https://raw.githubusercontent.com/zhirai-tech/dsh-token-manager/main/docs/market/index.json
 ```
 
-索引格式、安装方式与社区目录收录步骤见 [docs/MARKET.md](docs/MARKET.md)。
+在「插件 → 发现 → 添加索引源」填入即可。索引格式与社区目录收录见 [docs/MARKET.md](docs/MARKET.md)。
 
 ## 许可
 
-**专有软件 / 保留所有权利（UNLICENSED）**，详见 [LICENSE](LICENSE)。
-非开源：未经书面许可，不得复制、修改或再分发。
+**专有软件 / 保留所有权利（UNLICENSED）**，详见 [LICENSE](LICENSE)。未经书面许可，不得复制、修改或再分发。
 
 ---
 
