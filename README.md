@@ -77,6 +77,12 @@ This repository is a **distribution build**, not an open-source repository:
 
 ## Install
 
+**From npm:**
+
+```bash
+dsh plugin --profile <profile> add dsh-token-manager@1.3.3
+```
+
 **From GitHub (no market or npm needed):**
 
 ```bash
