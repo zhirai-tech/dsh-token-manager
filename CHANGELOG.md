@@ -2,6 +2,14 @@
 
 本项目遵循“阶段交付 + 版本号”记录方式。首版 `1.0.0` 汇总 Phase 1–6 的交付内容。
 
+## 1.3.2 — 2026-11-01
+
+### Changed — README and packaging
+- README (both languages) now opens with real annotated screenshots (before/after, dashboard, live strip, compression records, A/B chart) before any feature text.
+- Claims in the README are aligned with measured data and labelled (A/B real call; project percentages offline estimate).
+- GitHub repository description and topics are English-first.
+- Release zip rebuilt from the final documentation and structure.
+
 ## 1.3.1 — 2026-11-01
 
 ### Changed — repository structure
