@@ -1,5 +1,8 @@
 # DSH Token Manager
 
+**English** | [简体中文](README.zh-CN.md)
+
+
 [![DSH](https://img.shields.io/badge/DeepSeek%20Harness-0.2.x-4c6ef5)](https://github.com/deepseek-ai/deepseek-harness)
 [![Tests](https://img.shields.io/badge/tests-231%20passing-2f9e44)](#development)
 [![Dependencies](https://img.shields.io/badge/runtime%20dependencies-0-2f9e44)](#distribution)
@@ -9,7 +12,6 @@
 
 ZHIRAI · 智睿科技 · independent developer
 
-**English** | [中文说明](README.zh-CN.md)
 
 ---
 
