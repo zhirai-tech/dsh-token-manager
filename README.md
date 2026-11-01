@@ -77,6 +77,16 @@ This repository is a **distribution build**, not an open-source repository:
 
 ## Install
 
+**From GitHub (no market or npm needed):**
+
+```bash
+dsh plugin --profile <profile> add github:zhirai-tech/dsh-token-manager
+```
+
+Then restart the profile. This installs the compiled release (v1.3.3) from this repository.
+
+**From this repository (local clone):**
+
 ```bash
 # from this repository (linked dev install)
 dsh plugin --profile <profile> add "file:<absolute-path-to-this-repo>"
