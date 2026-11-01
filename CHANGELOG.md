@@ -2,28 +2,6 @@
 
 本项目遵循“阶段交付 + 版本号”记录方式。首版 `1.0.0` 汇总 Phase 1–6 的交付内容。
 
-## 1.3.2 — 2026-11-01
-
-### Changed — README and packaging
-- README (both languages) now opens with real annotated screenshots (before/after, dashboard, live strip, compression records, A/B chart) before any feature text.
-- Claims in the README are aligned with measured data and labelled (A/B real call; project percentages offline estimate).
-- GitHub repository description and topics are English-first.
-- Release zip rebuilt from the final documentation and structure.
-
-## 1.3.1 — 2026-11-01
-
-### Changed — repository structure
-- Added honest project structure so the repository reads as a maintained distribution project: `src/README.md` and `tests/README.md` (source and tests are not published), `scripts/token-report.mjs` + `scripts/install-sandbox.ps1` (real, useful helpers), `CONTRIBUTING.md`, `SECURITY.md` and GitHub issue templates.
-- README now documents the repository layout and states clearly that this is a distribution build, not an open-source repository.
-
-## 1.3.0 — 2026-11-01
-
-### Changed — distribution build
-- Public repository now ships **compiled, minified bundles only** (lib/index.js, lib/client.js); TypeScript sources, tests and build scripts are not published.
-- Minified bundle size: host 319 KB → 197 KB, client 295 KB → 188 KB (-38%).
-- Added annotated comparison screenshots (docs/screenshots/annotated-*.png) and a community video script (docs/VIDEO_SCRIPT.md).
-- License remains proprietary (UNLICENSED).
-
 ## 1.2.0 — 2026-11-01
 
 ### Added — compression 2.0 (accuracy-first)

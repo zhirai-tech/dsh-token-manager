@@ -1,6 +1,6 @@
 {
   "name": "dsh-token-manager",
-  "version": "1.3.2",
+  "version": "1.3.3",
   "private": true,
   "description": "DSH Token Manager — Token 成本监控、模型调用效率分析与上下文优化（DeepSeek Harness Cordis 插件）",
   "type": "module",
@@ -17,9 +17,6 @@
     "locale/*.json",
     "icon.png",
     "README.md",
-    "README.zh-CN.md",
-    "CHANGELOG.md",
-    "LICENSE",
     "docs/**"
   ],
   "author": "ZHIRAI <xtang3125@gmail.com> (https://zhirai.cloud)",
