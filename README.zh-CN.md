@@ -1,16 +1,27 @@
 # DSH Token Manager
 
-**DeepSeek Harness（DSH）的 Token 成本监控、模型调用效率分析与可逆工具输出缓存插件。**
+[![DSH](https://img.shields.io/badge/DeepSeek%20Harness-0.2.x-4c6ef5)](https://github.com/deepseek-ai/deepseek-harness)
+[![Tests](https://img.shields.io/badge/tests-231%20passing-2f9e44)](#开发)
 
-[English](README.md) | **中文**
+**DeepSeek Harness（DSH）的 Token 成本监控、模型调用效率分析与可逆工具输出缓存插件。**
 
 ZHIRAI · 智睿科技 · 独立开发者
 
+[English](README.md) | **中文**
+
 ---
 
-## 发行版说明（v1.3.0+）
+![插件未启动 vs 启用后](docs/screenshots/annotated-07-compare.png)
 
-本仓库是**发行版**：只包含编译压缩后的 `lib/` 产物、语言包、文档与插件清单；不包含 TypeScript 源码、测试与构建脚本。插件为专有软件（UNLICENSED），详见 [LICENSE](LICENSE)。
+| 仪表盘 | 顶部实时条 | 压缩记录 |
+|---|---|---|
+| ![仪表盘](docs/screenshots/annotated-02-after.png) | ![实时条](docs/screenshots/annotated-03-overlay.png) | ![压缩记录](docs/screenshots/annotated-04-cache.png) |
+
+![A/B 实测](docs/screenshots/annotated-05-ab.png)
+
+> 截图来自真实运行的 DSH 桌面应用：**左边是插件未启动，右边是插件启用后**（同一台机器，仅切换插件）。A/B 图来自真实模型调用对照：**44,067 → 30,068 token（−31.8%），两组回答完全一致**。
+
+---
 
 ## 它解决什么问题
 
@@ -25,27 +36,6 @@ DSH 每次模型调用都会产生四类 Token：未命中输入、缓存命中�
 | **优化** | 大工具输出 → 内容寻址 blob + 摘要（默认观察模式，可手动开启自动压缩）；原文随时可通过 `token_manager_read` 恢复；上下文去重只做 dry-run 检测，不修改会话 |
 | **任务/项目** | 每个用户轮次自动生成任务 + 手动任务/合并；5 类任务分类；9 段任务摘要；8 段项目摘要（版本化）；JSON/Markdown/CSV 导出 |
 | **界面** | 深色中文仪表盘：总览/调用明细/任务/工具缓存/上下文分析/成本分析/设置；1600/897/390 三档自适应；说明文案收进 `?` |
-
-## 启用前 / 启用后（真实截图）
-
-| 启用前（插件禁用） | 启用后（插件启用） |
-|---|---|
-| ![启用前](docs/screenshots/01-before-plugin-disabled.png) | ![启用后](docs/screenshots/02-after-plugin-enabled.png) |
-| 左栏没有「Token 监控」；`/token-manager/api/*` 返回 404；不产生任何记录 | 左栏出现「Token 监控」；今日/本会话/本任务/历史累计、缓存命中率、发现项全部本地记录 |
-
-> 两张截图来自同一个正在运行的 DSH 桌面应用，唯一区别是「插件启用/禁用 + 刷新页面」。
-
-## 顶部实时条
-
-DSH 运行时，窗口顶部常驻一条实时统计：
-
-![顶部实时条](docs/screenshots/12-live-overlay.png)
-
-显示**今日 Token**、**本会话 Token**、**压缩节省（估算）**与**节省费用（估算）**，每 5 秒刷新；点击进入面板，× 可隐藏到下次刷新。
-
-价格：未配置价格时，实时条会按当前模型自动载入**公开参考价**（DeepSeek 公开价，人民币 / 百万 tokens）并立即显示费用估算；界面注明这是参考价、不是实时账单，且可在 **设置 → 价格表** 中逐项修改。“已省 Token”按压缩字节估算（约 4 字节 ≈ 1 token），并明确标注为估算。
-
-更多截图：[调用明细](docs/screenshots/03-call-detail.png)、[工具缓存](docs/screenshots/04-cache-compression.png)、[上下文分析](docs/screenshots/05-context-analysis.png)、[任务](docs/screenshots/06-tasks.png)、[项目](docs/screenshots/08-projects.png)、[设置](docs/screenshots/07-settings.png)、[与 dsh-mnemon 共存](docs/screenshots/09-mnemon-compatibility.png)、[390 宽](docs/screenshots/11-mobile-390.png)。
 
 ## 数字为什么可信
 
