@@ -19,12 +19,12 @@
       "repository": { "url": "https://github.com/zhirai-tech/dsh-token-manager" },
       "versions": [
         {
-          "version": "1.2.0",
-          "publishTimestamp": 1793558338,
+          "version": "1.3.0",
+          "publishTimestamp": 1793559223,
           "source": {
             "type": "git",
             "url": "https://github.com/zhirai-tech/dsh-token-manager",
-            "commit": "3c206a7914f01f11129a677faafaa61a5251a635"
+            "commit": "9499941b9a430481deb39648bb601dd8c4bd8c6a"
           },
           "engines": { "dsh": ">=0.2.0-rc.5" }
         }
