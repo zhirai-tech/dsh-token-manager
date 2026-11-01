@@ -1,0 +1,652 @@
+{
+  "panel": {
+    "label": "Token 监控",
+    "title": "Token 成本监控",
+    "help": "只读监控 DSH 会话的模型 Token 用量与费用：四桶拆分（未命中输入 / 缓存命中 / 缓存写入 / 输出）、缓存命中率、任务成本与异常分析。所有数据保存在本地 DSH_HOME/dsh-token-manager，不上传任何服务器。Phase 1 只做分析，不修改上下文、不限制模型调用。"
+  },
+  "tabs": {
+    "label": "标签",
+    "overview": "总览",
+    "calls": "调用明细",
+    "tasks": "任务",
+    "report": "成本分析",
+    "settings": "设置",
+    "cache": "工具缓存",
+    "context": "上下文分析"
+  },
+  "common": {
+    "all": "全部",
+    "allTasks": "全部任务",
+    "analysisOnly": "只读监控",
+    "callsShort": "次调用",
+    "cancel": "取消",
+    "delete": "删除",
+    "edit": "编辑",
+    "exportCsv": "导出 CSV",
+    "help": "说明",
+    "loading": "加载中…",
+    "next": "下一页",
+    "noPrice": "价格未配置",
+    "prev": "上一页",
+    "refresh": "刷新",
+    "retry": "重试",
+    "rows": "行",
+    "save": "保存",
+    "saved": "已保存",
+    "saving": "保存中…",
+    "sessions": "会话",
+    "unknown": "未知",
+    "untitled": "未命名任务"
+  },
+  "error": {
+    "generic": "请求失败，请重试",
+    "network": "网络不可用，请检查本地服务是否在运行"
+  },
+  "footer": {
+    "poweredBy": "Powered by 智睿",
+    "copyright": "© 2026 智睿科技"
+  },
+  "chart": {
+    "empty": "暂无数据",
+    "trend": "Token 趋势图",
+    "calls": "每日调用次数图",
+    "share": "占比分布图"
+  },
+  "overview": {
+    "rangeLabel": "统计范围",
+    "range": {
+      "today": "今日",
+      "session": "本会话",
+      "task": "本任务",
+      "all": "全部"
+    },
+    "cards": {
+      "todayTokens": "今日 Token",
+      "sessionTokens": "本会话 Token",
+      "taskTokens": "本任务 Token",
+      "cacheHitRate": "缓存命中率",
+      "missInput": "未命中输入",
+      "output": "输出 Token",
+      "calls": "调用次数",
+      "cost": "估算费用",
+      "findings": "异常数量",
+      "allTime": "历史累计 Token"
+    },
+    "help": {
+      "todayTokens": "今日 0 点起的 Token 合计（四桶之和）。",
+      "sessionTokens": "当前活跃会话的 Token 合计；宿主未提供会话 ID 时取最近活跃会话。",
+      "taskTokens": "最近一个 turn（自动任务）的 Token 合计。",
+      "cacheHitRate": "缓存命中率 = 缓存命中 Token ÷（缓存命中 + 未命中输入）。",
+      "missInput": "未命中输入的 Token：本次请求实际新增发送、没有命中缓存的部分。",
+      "output": "模型输出 Token 合计（推理 Token 单独统计，不并入此处）。",
+      "calls": "该范围内的模型调用次数（按 turn/step 去重后的最终记录）。",
+      "cost": "按「设置 → 价格表」的单价本地估算，不是真实账单；未配置价格时显示「价格未配置」，不会用 0 代替。",
+      "findings": "该范围内任务产生的异常/发现数量（重复读取、重复构建、步骤膨胀、成本异常等）。",
+      "trend": "按天汇总；折线为 Token 合计，柱状为调用次数，可切换 7 天 / 30 天。",
+      "rankModels": "按模型汇总 Token 的占比（Top 5）。",
+      "rankProjects": "按项目汇总 Token 排行。",
+      "rankTasks": "按任务汇总 Token 排行；点击任务可跳到成本分析。",
+      "allTime": "全部历史的 Token 合计，含从投影缓存导入的历史会话。"
+    },
+    "trend": {
+      "title": "趋势",
+      "tokens": "Token 趋势",
+      "calls": "每日调用"
+    },
+    "rank": {
+      "models": "模型占比",
+      "projects": "项目排行",
+      "tasks": "任务排行"
+    },
+    "days": {
+      "7": "7 天",
+      "30": "30 天"
+    },
+    "empty": "还没有调用记录，产生一次模型调用后这里自动出现数据",
+    "emptyRank": "暂无排行数据",
+    "importedSessions": "已导入 {n} 个历史会话"
+  },
+  "calls": {
+    "filter": {
+      "range": "时间范围",
+      "model": "模型",
+      "task": "任务",
+      "flaggedOnly": "只看异常"
+    },
+    "range": {
+      "7": "近 7 天",
+      "30": "近 30 天",
+      "all": "全部",
+      "today": "今日"
+    },
+    "table": {
+      "time": "时间",
+      "model": "模型",
+      "task": "任务",
+      "missInput": "未命中输入",
+      "cacheRead": "缓存命中",
+      "cacheWrite": "缓存写入",
+      "output": "输出",
+      "total": "合计",
+      "cost": "费用",
+      "duration": "耗时",
+      "flag": "标记"
+    },
+    "flagged": "异常",
+    "normal": "正常",
+    "empty": "还没有调用记录，产生一次模型调用后自动记录"
+  },
+  "tasks": {
+    "filter": {
+      "type": "任务类型",
+      "status": "状态"
+    },
+    "table": {
+      "name": "任务",
+      "project": "项目",
+      "type": "类型",
+      "status": "状态",
+      "calls": "调用",
+      "missInput": "未命中输入",
+      "cacheRead": "缓存命中",
+      "cacheWrite": "缓存写入",
+      "output": "输出",
+      "total": "合计",
+      "cost": "费用",
+      "findings": "异常",
+      "started": "开始时间",
+      "select": "选择"
+    },
+    "empty": "还没有任务记录，发起一次对话后自动创建任务",
+    "help": {
+      "subview": "任务与项目是同一页内的两个子视图：任务按 turn 自动创建，项目按工作目录聚合；切换子视图不会改变顶部的 7 个标签。",
+      "create": "手动创建任务：名称必填；类型决定基线对比口径；所属会话默认最近活跃会话。",
+      "merge": "合并会把选中的多个任务归并为一个，调用与费用统计随之合并；只有在同一会话中的任务才允许合并。"
+    },
+    "subview": {
+      "tasks": "任务",
+      "projects": "项目"
+    },
+    "newTask": "新建任务",
+    "newTaskTitle": "新建任务",
+    "newTaskName": "任务名称",
+    "newTaskType": "任务类型",
+    "newTaskSession": "所属会话",
+    "newTaskCreate": "创建",
+    "created": "任务已创建",
+    "merge": "合并",
+    "mergeTitle": "合并任务",
+    "mergeName": "合并后名称",
+    "mergeConfirm": "确认合并",
+    "mergeSelected": "已选任务",
+    "mergeHint": "勾选同一会话的 2 个及以上任务才能合并",
+    "merged": "已合并",
+    "exportReport": "导出报告",
+    "selectOneForExport": "请先勾选一个任务再导出",
+    "nameEmpty": "名称不能为空",
+    "openDetail": "查看任务详情",
+    "subviewLabel": "子视图",
+    "helpList": "任务按 turn 自动创建；类型与状态可直接在表格里修改，点击任意行打开详情抽屉，勾选任务后可合并或导出报告。"
+  },
+  "status": {
+    "pending": "待开始",
+    "running": "进行中",
+    "completed": "已完成",
+    "paused": "已暂停",
+    "failed": "失败"
+  },
+  "type": {
+    "simple-edit": "简单修改",
+    "normal-dev": "普通开发",
+    "complex-dev": "复杂开发",
+    "troubleshoot": "故障排查",
+    "project-analysis": "项目分析"
+  },
+  "finding": {
+    "repeated_read": "重复读取同一文件",
+    "repeated_tool": "重复执行相同工具",
+    "repeated_build": "重复执行构建",
+    "repeated_test": "重复执行测试",
+    "repeated_deploy": "重复执行部署",
+    "confirmation_rounds": "疑似多轮确认",
+    "repeated_plan": "疑似重复计划",
+    "repeated_summary": "疑似重复总结",
+    "step_inflation": "模型步骤偏多",
+    "cache_hit_drop": "缓存命中率下降",
+    "task_cost_anomaly": "任务成本异常"
+  },
+  "severity": {
+    "info": "提示",
+    "warn": "警告",
+    "high": "严重"
+  },
+  "report": {
+    "taskLabel": "任务",
+    "pickTask": "选择任务",
+    "empty": "在上方选择一个任务，查看成本报告",
+    "notFound": "该任务没有成本数据",
+    "metrics": {
+      "calls": "调用次数",
+      "tokens": "Token 合计",
+      "cost": "估算费用",
+      "duration": "耗时",
+      "steps": "模型步骤",
+      "toolCalls": "工具调用"
+    },
+    "percentile": {
+      "calls": "调用分位",
+      "tokens": "Token 分位"
+    },
+    "help": {
+      "percentile": "与同类型任务基线相比的分位（0–100，越高越接近最贵的一档）；样本不足时留空。",
+      "baseline": "同项目 + 同任务类型的已完成任务的中位数与 p80；样本少于 5 个时不给结论。",
+      "findings": "只读分析结果：重复读取、重复构建/测试、步骤膨胀、缓存命中下降、成本异常等；每一项都可在设置里单独关闭。",
+      "topCalls": "该任务中成本最高的模型调用以及高成本原因（大输入 / 低缓存命中 / 高输出 / 重试）。",
+      "suggestions": "仅建议，不会自动执行；Phase 1 不做任何干预。"
+    },
+    "baseline": {
+      "metric": "指标",
+      "median": "中位数",
+      "p80": "p80",
+      "samples": "样本数"
+    },
+    "baselineInsufficient": "样本不足，暂不给出基线结论",
+    "baselineInsufficientShort": "样本不足",
+    "interference": "并发干扰",
+    "findings": "异常发现",
+    "noFindings": "暂无异常",
+    "topCalls": {
+      "turn": "轮/步",
+      "reason": "原因"
+    },
+    "noCalls": "暂无调用",
+    "suggestions": "建议",
+    "noSuggestions": "暂无建议",
+    "baselineTitle": "基线对比",
+    "topCallsTitle": "Top 成本调用"
+  },
+  "settings": {
+    "savedState": "保存状态",
+    "notChanged": "未修改",
+    "export": "导出 CSV",
+    "reset": "恢复默认",
+    "resetConfirm": "确认把全部设置恢复为默认值？",
+    "section": {
+      "capture": "采集",
+      "analytics": "分析项",
+      "thresholds": "阈值",
+      "prices": "价格表",
+      "data": "数据",
+      "compression": "工具输出缓存",
+      "context": "上下文分析"
+    },
+    "help": {
+      "capture": "采集开关决定是否记录用量；观察模式确保只分析、不干预调用；证据文本上限限制 findings 中保存的文本长度。",
+      "analytics": "各分析项可单独关闭；关闭后不再产生对应类型的 findings。",
+      "thresholds": "触发判定使用的数量/倍数阈值；修改后立即生效。",
+      "prices": "按 provider + 模型配置四桶单价；单位 tokens 是计价单位（默认 1,000,000）。只做本地估算费用，不产生真实账单。",
+      "data": "历史投影缓存导入只读，不会修改任何会话；导出 CSV 含 UTF-8 BOM 与公式注入转义。",
+      "compression": "把超长工具结果压缩并替换为摘要，节省上下文 Token：替换会写入会话日志（会话历史里能看到），原文完整保存在本地 blob，可随时恢复查看；观察模式只记录与存储、不替换模型可见内容。Phase 2 默认观察模式。",
+      "context": "只检测、不改写：分析当前上下文的重复内容，估算移除后的节省与 KV Cache 风险，默认 dry-run。阈值与风险倍数决定候选与风险判定；未配置价格时用「缓存读取价格比例」估算风险成本。"
+    },
+    "enabled": "采集开关",
+    "observeOnly": "观察模式",
+    "alertOnly": "仅提示不干预",
+    "evidenceTextLimit": "证据文本上限",
+    "analytics": {
+      "repeatedRead": "重复读取同一文件",
+      "repeatedTool": "重复执行相同工具",
+      "repeatedBuild": "重复执行构建",
+      "repeatedTest": "重复执行测试",
+      "repeatedDeploy": "重复执行部署",
+      "confirmationRounds": "多轮确认检测",
+      "repeatedPlan": "重复计划检测",
+      "repeatedSummary": "重复总结检测",
+      "stepInflation": "步骤膨胀检测",
+      "cacheHitDrop": "缓存命中下降检测",
+      "taskCostAnomaly": "任务成本异常检测"
+    },
+    "thresholds": {
+      "repeatedReadCount": "重复读取次数",
+      "repeatedToolCount": "重复工具次数",
+      "repeatedCommandCount": "重复命令次数",
+      "confirmationMaxChars": "确认消息字数上限",
+      "confirmationRounds": "确认轮数",
+      "repeatedTextCount": "重复文本次数",
+      "inflationFactor": "步骤膨胀倍数",
+      "simpleEditCallCap": "简单修改调用上限",
+      "normalDevCallCap": "普通开发调用上限",
+      "cacheDropFactor": "缓存命中下降倍数",
+      "costAnomalyFactor": "成本异常倍数",
+      "minBaselineSamples": "基线最少样本"
+    },
+    "price": {
+      "provider": "Provider",
+      "model": "模型",
+      "input": "未命中输入价",
+      "cacheRead": "缓存命中价",
+      "cacheWrite": "缓存写入价",
+      "output": "输出价",
+      "currency": "币种",
+      "unitTokens": "单位 tokens",
+      "effectiveAt": "生效时间",
+      "actions": "操作",
+      "add": "新增价格",
+      "invalid": "请至少填写 Provider 与模型"
+    },
+    "pricesEmpty": "价格表为空，添加后费用才能估算",
+    "import": {
+      "button": "导入历史投影缓存",
+      "idle": "未导入",
+      "result": "导入完成"
+    },
+    "compression": {
+      "mode": "模式",
+      "blobs": "Blob 数",
+      "usage": "占用",
+      "missing": "缺失",
+      "statsIdle": "存储状态加载中…",
+      "minBytes": "最小处理字节",
+      "selectiveBytes": "选择性摘要下限",
+      "smartBytes": "智能压缩下限",
+      "maxCacheMB": "缓存上限 (MB)",
+      "ttlDays": "保留天数",
+      "type": {
+        "text": "纯文本",
+        "build-log": "构建日志",
+        "test-output": "测试输出",
+        "json": "JSON",
+        "xml": "XML",
+        "file-list": "文件列表",
+        "zip-list": "ZIP 其他文本"
+      },
+      "verify": "一致性检查",
+      "clear": "清空缓存",
+      "verifyMissing": "缺文件",
+      "verifyOrphan": "孤儿文件",
+      "verifyMismatch": "哈希不符",
+      "clearConfirm": "确认清空全部工具输出缓存？不可撤销。",
+      "cleared": "已清空",
+      "storageIdle": "未检查"
+    },
+    "context": {
+      "mode": "模式",
+      "modeNote": "仅检测，不做任何改写",
+      "minOccurrences": "最少出现次数",
+      "minSurfaceNodes": "最少节点数",
+      "maxCandidates": "最大候选数",
+      "riskFactor": "风险倍数",
+      "assumedCacheReadRatio": "缓存读取价格比例"
+    }
+  },
+  "cache": {
+    "cards": {
+      "entries": "缓存条目",
+      "original": "原始总大小",
+      "compressed": "压缩后总大小",
+      "saved": "估算节省"
+    },
+    "help": {
+      "entries": "缓存条目数 = 已记录的原始工具输出条数（重复调用算多条，去重命中单独统计）。",
+      "original": "原始总大小 = 所有缓存条目的原始字节合计。",
+      "compressed": "压缩后总大小 = 实际写入磁盘的压缩后字节合计。",
+      "saved": "估算节省 = 原始总大小 − 压缩后总大小（字节数与百分比）；这是盘上占用量的估算，不等于账单节省。",
+      "table": "表格按时间倒序列出缓存条目，点击任意行查看原文。不可恢复表示原文文件已被清理或缺失。",
+      "viewer": "抽屉按 8 KB 分段读取本地原文 blob，可上一段/下一段翻页；只读，不会修改会话或缓存内容。"
+    },
+    "dedupe": "去重命中",
+    "missingWarn": "原文缺失",
+    "filter": {
+      "tool": "工具名",
+      "toolPlaceholder": "输入工具名筛选",
+      "recoverable": "可恢复",
+      "all": "全部",
+      "recoverableOnly": "可恢复",
+      "notRecoverable": "不可恢复"
+    },
+    "table": {
+      "tool": "工具名",
+      "original": "原始大小",
+      "compressed": "压缩后大小",
+      "compression": "压缩类型",
+      "mode": "模式",
+      "session": "会话",
+      "time": "时间",
+      "recoverable": "可恢复"
+    },
+    "mode": {
+      "off": "关闭",
+      "observe": "观察模式",
+      "on": "启用自动压缩"
+    },
+    "recoverable": {
+      "yes": "可恢复",
+      "no": "不可恢复"
+    },
+    "empty": "还没有工具输出缓存记录，出现一次大工具输出后自动记录",
+    "openViewer": "查看原文",
+    "viewer": {
+      "title": "工具输出原文",
+      "blobId": "Blob ID",
+      "hash": "哈希",
+      "size": "大小",
+      "type": "类型",
+      "tool": "工具名",
+      "session": "会话",
+      "time": "时间",
+      "summary": "摘要",
+      "summaryEmpty": "（内容加载后显示摘要）",
+      "notRecoverable": "原文文件缺失或已清理，无法查看。",
+      "emptyContent": "这一段没有可显示的内容。",
+      "range": "当前范围",
+      "total": "总字节",
+      "prev": "上一段",
+      "next": "下一段",
+      "close": "关闭"
+    }
+  },
+  "context": {
+    "sessionLabel": "会话",
+    "sessionDefault": "最近活跃会话",
+    "refreshAnalysis": "刷新分析",
+    "mode": {
+      "off": "关闭",
+      "dry-run": "仅检测（dry-run）"
+    },
+    "readOnly": "只读",
+    "protected": "受保护",
+    "cards": {
+      "nodes": "表面节点",
+      "tokens": "估算 tokens",
+      "candidates": "重复候选",
+      "savings": "可节省 tokens",
+      "riskyHint": "其中风险候选"
+    },
+    "help": {
+      "page": "只检测、不改写：本页分析当前上下文的重复内容与 KV Cache 风险，默认 dry-run。改写上下文会打断前缀缓存（缓存命中段失效），往往比省下的 tokens 更贵，所以 Phase 3 不提供自动改写；「记录本次 dry-run 建议」只把候选写入本地记录，绝不修改会话。",
+      "nodes": "surface 节点数 = 本次请求上下文里的消息/片段数量（含 system / developer / user / assistant / tool）。",
+      "tokens": "按字符数估算的 context tokens，不是官方计费口径。",
+      "candidates": "重复出现的可移除内容条数；同一 contentHash 达到「最少出现次数」阈值才计入。",
+      "savings": "候选全部移除可节省的 tokens 估算，未扣除 KV Cache 失效带来的额外成本。",
+      "composition": "按 role 与 source 统计上下文占比；受保护 source（system / user / dsh-mnemon 等）永远不会成为移除候选。",
+      "candidateTable": "点击任意候选行展开每次出现的位置（turn / step / seq / tokens）；缓存风险徽标给出 safe / risky / unknown 与原因。",
+      "history": "dry-run 记录下来的优化建议历史，仅本地记录，不执行任何改写。"
+    },
+    "section": {
+      "composition": "上下文组成",
+      "candidates": "重复候选",
+      "history": "优化建议历史"
+    },
+    "roleBar": "按 role 占比",
+    "sources": "按 source 明细",
+    "role": {
+      "system": "系统",
+      "developer": "开发者",
+      "user": "用户",
+      "assistant": "助手",
+      "tool": "工具"
+    },
+    "kind": {
+      "tool-result": "工具输出",
+      "file-content": "文件内容"
+    },
+    "table": {
+      "kind": "类型",
+      "subject": "对象",
+      "occurrences": "出现次数",
+      "removable": "可移除 tokens",
+      "risk": "缓存风险",
+      "advice": "建议"
+    },
+    "risk": {
+      "safe": "安全",
+      "risky": "有风险",
+      "unknown": "未知"
+    },
+    "advice": {
+      "recommend": "推荐",
+      "avoid": "不建议"
+    },
+    "occ": {
+      "title": "出现位置",
+      "riskLine": "风险原因",
+      "seq": "seq",
+      "turn": "轮",
+      "step": "步",
+      "role": "角色",
+      "source": "来源",
+      "tokens": "tokens",
+      "bytes": "字节",
+      "costLine": "节省 / 额外费用"
+    },
+    "totalRows": "共",
+    "recordDryRun": "记录本次 dry-run 建议",
+    "recordedNote": "已记录 {n} 条建议",
+    "emptySession": "当前会话还没有可分析的上下文，产生一次对话后再刷新",
+    "emptyCandidates": "没有发现可移除的重复内容",
+    "emptyHistory": "还没有 dry-run 记录，点上方按钮记录一次",
+    "emptyComposition": "暂无组成数据",
+    "verified": "已验证",
+    "history": {
+      "time": "时间",
+      "type": "类型",
+      "original": "原 tokens",
+      "optimized": "优化后",
+      "savings": "预计节省",
+      "cacheImpact": "缓存影响",
+      "status": "状态"
+    }
+  },
+  "taskdetail": {
+    "title": "任务详情",
+    "help": "任务详情汇总该任务的指标、9 段摘要、文件/命令聚合、异常与调用明细；摘要中的「自动生成（本地）」表示内容来自本地自动草稿，编辑并保存后变为手动版本。导出只读取本地数据。",
+    "openReport": "成本分析",
+    "close": "关闭",
+    "notFound": "任务不存在或没有详情数据",
+    "name": "任务名称",
+    "metrics": {
+      "calls": "调用次数",
+      "total": "Token 合计",
+      "cost": "估算费用",
+      "duration": "耗时"
+    },
+    "buckets": {
+      "missInput": "未命中输入",
+      "cacheRead": "缓存命中",
+      "cacheWrite": "缓存写入",
+      "output": "输出"
+    },
+    "summary": "任务摘要",
+    "summaryHelp": "9 个摘要字段用于记录任务的目标、产出与下一步，保存在本地数据库，可导出 JSON/Markdown/CSV；不会写入会话日志或 mnemon。",
+    "autoDraft": "自动生成（本地）",
+    "edited": "手动编辑",
+    "unsaved": "未保存",
+    "savedState": "已保存",
+    "saved": "摘要已保存",
+    "saveSummary": "保存摘要",
+    "writes": {
+      "tool": "工具",
+      "target": "目标",
+      "command": "命令",
+      "count": "次数"
+    },
+    "helpWrites": "按工具与目标聚合该任务写入过的文件与执行过的命令，用于复核实际改动范围。",
+    "toolCalls": "工具调用",
+    "emptyWrites": "暂无文件或命令修改",
+    "findings": "异常发现",
+    "helpFindings": "该任务的只读分析结果（重复读取、重复构建、步骤膨胀、成本异常等）。",
+    "emptyFindings": "暂无异常",
+    "calls": "调用明细（前 50）",
+    "helpCalls": "按时间列出该任务的模型调用，最多显示 50 条；完整数据可在「调用明细」标签筛选任务查看。",
+    "emptyCalls": "暂无调用",
+    "export": "导出",
+    "writesTitle": "修改文件 / 命令聚合"
+  },
+  "summary": {
+    "task": {
+      "objective": "本次目标",
+      "completed": "实际完成内容",
+      "decisions": "关键技术决策",
+      "files": "修改文件",
+      "apiChanges": "接口变化",
+      "tests": "测试结果",
+      "pending": "未完成事项",
+      "nextSteps": "下一步计划",
+      "tokenStats": "Token 使用统计"
+    }
+  },
+  "projects": {
+    "title": "项目",
+    "help": {
+      "list": "项目按工作目录聚合会话与任务；摘要状态表示是否保存过项目摘要版本，草稿建议来自本地自动生成。"
+    },
+    "empty": "还没有项目记录，产生一次对话后自动出现",
+    "open": "打开项目摘要",
+    "table": {
+      "project": "项目路径",
+      "sessions": "会话数",
+      "tasks": "任务数",
+      "calls": "调用数",
+      "tokens": "tokens",
+      "cost": "费用",
+      "lastActivity": "最近活动",
+      "summary": "摘要状态"
+    },
+    "summary": {
+      "saved": "已保存",
+      "draft": "草稿",
+      "none": "无摘要"
+    },
+    "editor": {
+      "title": "项目摘要",
+      "help": "8 段项目摘要保存在本地数据库，用于记录项目现状与约束；草稿来自本地自动生成，手动编辑并保存后生成新版本（版本号自增，历史草稿会被替换）。内容不会写入 mnemon 或会话日志。",
+      "close": "关闭",
+      "save": "保存摘要",
+      "savedNote": "已保存",
+      "draftHint": "当前显示的是本地自动草稿建议，编辑后保存才会生成版本",
+      "draftSuggestions": "草稿建议",
+      "applyDraft": "采用全部草稿",
+      "helpDraft": "草稿建议是本地自动生成的参考内容，采用后会填入对应段落；仍需保存才会生效。"
+    },
+    "section": {
+      "overview": "项目基本情况",
+      "architecture": "技术架构",
+      "database": "数据库结构",
+      "apis": "关键接口",
+      "completed": "已完成模块",
+      "status": "当前开发状态",
+      "pending": "未完成事项",
+      "constraints": "用户明确限制"
+    }
+  },
+  "live.today": "今日",
+  "live.session": "本会话",
+  "live.saved": "已省（估算）",
+  "live.savedCost": "节省费用",
+  "live.priceUnset": "价格未配置",
+  "live.loadReference": "载入参考价",
+  "live.referenceNone": "无匹配参考价，请到设置手动填写",
+  "live.hide": "隐藏实时条",
+  "live.hint": "实时统计：今日 / 本会话 Token、压缩节省（估算）与费用；数据本地采集，每 5 秒刷新",
+  "live.loading": "加载中"
+}

@@ -1,0 +1,652 @@
+{
+  "panel": {
+    "label": "Token Monitor",
+    "title": "Token Cost Monitor",
+    "help": "Read-only monitoring of DSH token usage and cost: four buckets (cache-miss input / cache read / cache write / output), cache hit rate, per-task cost and anomaly analysis. All data stays local in DSH_HOME/dsh-token-manager and is never uploaded. Phase 1 only analyses: it never rewrites context or limits model calls."
+  },
+  "tabs": {
+    "label": "Tabs",
+    "overview": "Overview",
+    "calls": "Calls",
+    "tasks": "Tasks",
+    "report": "Cost analysis",
+    "settings": "Settings",
+    "cache": "Tool cache",
+    "context": "Context analysis"
+  },
+  "common": {
+    "all": "All",
+    "allTasks": "All tasks",
+    "analysisOnly": "Read-only",
+    "callsShort": "calls",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "exportCsv": "Export CSV",
+    "help": "Help",
+    "loading": "Loading…",
+    "next": "Next",
+    "noPrice": "Price not configured",
+    "prev": "Prev",
+    "refresh": "Refresh",
+    "retry": "Retry",
+    "rows": "rows",
+    "save": "Save",
+    "saved": "Saved",
+    "saving": "Saving…",
+    "sessions": "sessions",
+    "unknown": "Unknown",
+    "untitled": "Untitled task"
+  },
+  "error": {
+    "generic": "Request failed, please retry",
+    "network": "Network unavailable; check that the local service is running"
+  },
+  "footer": {
+    "poweredBy": "Powered by ZHIRAI",
+    "copyright": "© 2026 ZHIRAI Technology"
+  },
+  "chart": {
+    "empty": "No data yet",
+    "trend": "Token trend chart",
+    "calls": "Daily calls chart",
+    "share": "Share chart"
+  },
+  "overview": {
+    "rangeLabel": "Range",
+    "range": {
+      "today": "Today",
+      "session": "Session",
+      "task": "Task",
+      "all": "All"
+    },
+    "cards": {
+      "todayTokens": "Tokens today",
+      "sessionTokens": "Session tokens",
+      "taskTokens": "Task tokens",
+      "cacheHitRate": "Cache hit rate",
+      "missInput": "Cache-miss input",
+      "output": "Output tokens",
+      "calls": "Calls",
+      "cost": "Estimated cost",
+      "findings": "Findings",
+      "allTime": "All-time tokens"
+    },
+    "help": {
+      "todayTokens": "Total tokens since local midnight (sum of the four buckets).",
+      "sessionTokens": "Total tokens of the active session; falls back to the most recent session when no session id is supplied.",
+      "taskTokens": "Total tokens of the latest turn (auto task).",
+      "cacheHitRate": "Cache hit rate = cache-read tokens ÷ (cache-read + cache-miss input).",
+      "missInput": "Cache-miss input tokens: the newly sent part that did not hit the prompt cache.",
+      "output": "Total model output tokens; reasoning tokens are tracked separately.",
+      "calls": "Number of model calls in the range (deduplicated final records per turn/step).",
+      "cost": "Locally estimated from the price table, not a real bill. When no price is configured this shows “Price not configured” instead of 0.",
+      "findings": "Findings produced by tasks in the range (repeated read, repeated build, step inflation, cost anomaly, …).",
+      "trend": "Daily aggregates: line = total tokens, bars = calls. Switch between 7 and 30 days.",
+      "rankModels": "Token share by model (top 5).",
+      "rankProjects": "Token ranking by project.",
+      "rankTasks": "Token ranking by task; click a task to open its cost report.",
+      "allTime": "Total tokens across all history, including sessions imported from the projection cache."
+    },
+    "trend": {
+      "title": "Trend",
+      "tokens": "Token trend",
+      "calls": "Daily calls"
+    },
+    "rank": {
+      "models": "Model share",
+      "projects": "Project ranking",
+      "tasks": "Task ranking"
+    },
+    "days": {
+      "7": "7 days",
+      "30": "30 days"
+    },
+    "empty": "No calls yet — run one model call and data appears here",
+    "emptyRank": "No ranking data yet",
+    "importedSessions": "Imported {n} historical sessions"
+  },
+  "calls": {
+    "filter": {
+      "range": "Time range",
+      "model": "Model",
+      "task": "Task",
+      "flaggedOnly": "Flagged only"
+    },
+    "range": {
+      "7": "Last 7 days",
+      "30": "Last 30 days",
+      "all": "All",
+      "today": "Today"
+    },
+    "table": {
+      "time": "Time",
+      "model": "Model",
+      "task": "Task",
+      "missInput": "Cache-miss",
+      "cacheRead": "Cache read",
+      "cacheWrite": "Cache write",
+      "output": "Output",
+      "total": "Total",
+      "cost": "Cost",
+      "duration": "Duration",
+      "flag": "Flag"
+    },
+    "flagged": "Flagged",
+    "normal": "OK",
+    "empty": "No calls recorded yet — they appear after the next model call"
+  },
+  "tasks": {
+    "filter": {
+      "type": "Task type",
+      "status": "Status"
+    },
+    "table": {
+      "name": "Task",
+      "project": "Project",
+      "type": "Type",
+      "status": "Status",
+      "calls": "Calls",
+      "missInput": "Cache-miss",
+      "cacheRead": "Cache read",
+      "cacheWrite": "Cache write",
+      "output": "Output",
+      "total": "Total",
+      "cost": "Cost",
+      "findings": "Findings",
+      "started": "Started",
+      "select": "Select"
+    },
+    "empty": "No tasks yet — a conversation turn creates one automatically",
+    "help": {
+      "subview": "Tasks and Projects are two sub-views inside the same tab: tasks are created per turn, projects aggregate by working directory. Switching sub-views never changes the seven top-level tabs.",
+      "create": "Create a task manually: the name is required, the type decides the baseline it compares against, and the session defaults to the latest active one.",
+      "merge": "Merging folds the selected tasks into one; calls and cost statistics merge too. Only tasks from the same session can be merged."
+    },
+    "subview": {
+      "tasks": "Tasks",
+      "projects": "Projects"
+    },
+    "newTask": "New task",
+    "newTaskTitle": "New task",
+    "newTaskName": "Task name",
+    "newTaskType": "Task type",
+    "newTaskSession": "Session",
+    "newTaskCreate": "Create",
+    "created": "Task created",
+    "merge": "Merge",
+    "mergeTitle": "Merge tasks",
+    "mergeName": "Merged name",
+    "mergeConfirm": "Merge",
+    "mergeSelected": "Selected tasks",
+    "mergeHint": "Select two or more tasks from the same session to merge",
+    "merged": "Merged",
+    "exportReport": "Export report",
+    "selectOneForExport": "Select exactly one task before exporting",
+    "nameEmpty": "Name is required",
+    "openDetail": "Open task detail",
+    "subviewLabel": "Sub-view",
+    "helpList": "Tasks are created per turn. Type and status can be edited directly in the table; click any row to open the detail drawer, and select tasks to merge or export a report."
+  },
+  "status": {
+    "pending": "Pending",
+    "running": "Running",
+    "completed": "Completed",
+    "paused": "Paused",
+    "failed": "Failed"
+  },
+  "type": {
+    "simple-edit": "Simple edit",
+    "normal-dev": "Normal development",
+    "complex-dev": "Complex development",
+    "troubleshoot": "Troubleshooting",
+    "project-analysis": "Project analysis"
+  },
+  "finding": {
+    "repeated_read": "Repeated file read",
+    "repeated_tool": "Repeated tool call",
+    "repeated_build": "Repeated build",
+    "repeated_test": "Repeated test run",
+    "repeated_deploy": "Repeated deploy",
+    "confirmation_rounds": "Possible extra confirmation rounds",
+    "repeated_plan": "Possible repeated planning",
+    "repeated_summary": "Possible repeated summary",
+    "step_inflation": "Step count above baseline",
+    "cache_hit_drop": "Cache hit rate dropped",
+    "task_cost_anomaly": "Task cost anomaly"
+  },
+  "severity": {
+    "info": "Info",
+    "warn": "Warn",
+    "high": "High"
+  },
+  "report": {
+    "taskLabel": "Task",
+    "pickTask": "Select a task",
+    "empty": "Select a task above to see its cost report",
+    "notFound": "This task has no cost data",
+    "metrics": {
+      "calls": "Calls",
+      "tokens": "Total tokens",
+      "cost": "Estimated cost",
+      "duration": "Duration",
+      "steps": "Model steps",
+      "toolCalls": "Tool calls"
+    },
+    "percentile": {
+      "calls": "Call percentile",
+      "tokens": "Token percentile"
+    },
+    "help": {
+      "percentile": "Percentile against the same task-type baseline (0–100, higher means costlier). Empty when there are too few samples.",
+      "baseline": "Median and p80 of completed tasks with the same project and task type. No conclusion below 5 samples.",
+      "findings": "Read-only analysis results: repeated reads, repeated build/test, step inflation, cache drop, cost anomaly, etc. Each check can be disabled in Settings.",
+      "topCalls": "The costliest model calls of this task with the reason (large input / low cache hit / large output / retry).",
+      "suggestions": "Suggestions only, never executed automatically. Phase 1 performs no intervention."
+    },
+    "baseline": {
+      "metric": "Metric",
+      "median": "Median",
+      "p80": "p80",
+      "samples": "Samples"
+    },
+    "baselineInsufficient": "Not enough samples for a baseline conclusion",
+    "baselineInsufficientShort": "Too few samples",
+    "interference": "Concurrent interference",
+    "findings": "Findings",
+    "noFindings": "No findings",
+    "topCalls": {
+      "turn": "Turn/Step",
+      "reason": "Reason"
+    },
+    "noCalls": "No calls",
+    "suggestions": "Suggestions",
+    "noSuggestions": "No suggestions",
+    "baselineTitle": "Baseline",
+    "topCallsTitle": "Top cost calls"
+  },
+  "settings": {
+    "savedState": "Save state",
+    "notChanged": "Unchanged",
+    "export": "Export CSV",
+    "reset": "Reset defaults",
+    "resetConfirm": "Reset all settings to their defaults?",
+    "section": {
+      "capture": "Capture",
+      "analytics": "Analyses",
+      "thresholds": "Thresholds",
+      "prices": "Prices",
+      "data": "Data",
+      "compression": "Tool output cache",
+      "context": "Context analysis"
+    },
+    "help": {
+      "capture": "The capture switch controls whether usage is recorded. Observe-only keeps analysis non-intervening. The evidence limit caps how much text findings may keep.",
+      "analytics": "Each analysis can be disabled individually; disabling it stops that finding type from being produced.",
+      "thresholds": "Numeric thresholds used by the checks; changes take effect immediately.",
+      "prices": "Configure the four bucket prices per provider + model. The unit is the billing unit (default 1,000,000 tokens). Costs are local estimates, not real bills.",
+      "data": "The projection-cache import is read-only and never modifies sessions. CSV export includes a UTF-8 BOM and formula-injection escaping.",
+      "compression": "Compresses long tool results and replaces them with a summary to save context tokens. Replacements are written to the session log (visible in history), while the full original stays in a local blob and can be restored any time. Observe mode records and stores without replacing what the model sees. Phase 2 defaults to observe mode.",
+      "context": "Detect only, never rewrite. Analyses duplicate content in the current context and estimates savings versus KV-cache risk; dry-run by default. Thresholds and the risk factor drive candidate and risk decisions; when no price is configured the cache-read ratio estimates risk cost."
+    },
+    "enabled": "Capture usage",
+    "observeOnly": "Observe only",
+    "alertOnly": "Alert only",
+    "evidenceTextLimit": "Evidence text limit",
+    "analytics": {
+      "repeatedRead": "Repeated file read",
+      "repeatedTool": "Repeated tool call",
+      "repeatedBuild": "Repeated build",
+      "repeatedTest": "Repeated test run",
+      "repeatedDeploy": "Repeated deploy",
+      "confirmationRounds": "Confirmation rounds",
+      "repeatedPlan": "Repeated planning",
+      "repeatedSummary": "Repeated summary",
+      "stepInflation": "Step inflation",
+      "cacheHitDrop": "Cache hit drop",
+      "taskCostAnomaly": "Task cost anomaly"
+    },
+    "thresholds": {
+      "repeatedReadCount": "Repeated read count",
+      "repeatedToolCount": "Repeated tool count",
+      "repeatedCommandCount": "Repeated command count",
+      "confirmationMaxChars": "Confirmation max chars",
+      "confirmationRounds": "Confirmation rounds",
+      "repeatedTextCount": "Repeated text count",
+      "inflationFactor": "Inflation factor",
+      "simpleEditCallCap": "Simple-edit call cap",
+      "normalDevCallCap": "Normal-dev call cap",
+      "cacheDropFactor": "Cache drop factor",
+      "costAnomalyFactor": "Cost anomaly factor",
+      "minBaselineSamples": "Min baseline samples"
+    },
+    "price": {
+      "provider": "Provider",
+      "model": "Model",
+      "input": "Cache-miss price",
+      "cacheRead": "Cache-read price",
+      "cacheWrite": "Cache-write price",
+      "output": "Output price",
+      "currency": "Currency",
+      "unitTokens": "Unit tokens",
+      "effectiveAt": "Effective at",
+      "actions": "Actions",
+      "add": "Add price",
+      "invalid": "Provider and model are required"
+    },
+    "pricesEmpty": "No prices yet — add one to estimate costs",
+    "import": {
+      "button": "Import projection cache",
+      "idle": "Not imported",
+      "result": "Import finished"
+    },
+    "compression": {
+      "mode": "Mode",
+      "blobs": "Blobs",
+      "usage": "Usage",
+      "missing": "Missing",
+      "statsIdle": "Loading storage state…",
+      "minBytes": "Min bytes",
+      "selectiveBytes": "Selective summary threshold",
+      "smartBytes": "Smart compression threshold",
+      "maxCacheMB": "Cache limit (MB)",
+      "ttlDays": "Retention days",
+      "type": {
+        "text": "Plain text",
+        "build-log": "Build log",
+        "test-output": "Test output",
+        "json": "JSON",
+        "xml": "XML",
+        "file-list": "File list",
+        "zip-list": "ZIP & other text"
+      },
+      "verify": "Verify",
+      "clear": "Clear cache",
+      "verifyMissing": "missing",
+      "verifyOrphan": "orphan",
+      "verifyMismatch": "hash mismatch",
+      "clearConfirm": "Clear the entire tool output cache? This cannot be undone.",
+      "cleared": "Cleared",
+      "storageIdle": "Not checked"
+    },
+    "context": {
+      "mode": "Mode",
+      "modeNote": "Detect only, never rewrites",
+      "minOccurrences": "Min occurrences",
+      "minSurfaceNodes": "Min surface nodes",
+      "maxCandidates": "Max candidates",
+      "riskFactor": "Risk factor",
+      "assumedCacheReadRatio": "Assumed cache-read ratio"
+    }
+  },
+  "cache": {
+    "cards": {
+      "entries": "Cached results",
+      "original": "Original size",
+      "compressed": "Compressed size",
+      "saved": "Estimated saved"
+    },
+    "help": {
+      "entries": "Number of raw tool outputs recorded (repeated calls count separately; dedupe hits are counted on their own).",
+      "original": "Sum of the original bytes of every cached tool output.",
+      "compressed": "Sum of the compressed bytes actually written to disk.",
+      "saved": "Estimated saving = original size − compressed size (bytes and percentage). This estimates disk usage, not billing savings.",
+      "table": "Cached tool outputs newest first. Click any row to read the original text. “Not recoverable” means the blob file was pruned or is missing.",
+      "viewer": "The drawer reads the local original blob 8 KB at a time with previous/next paging. It is read-only and never modifies sessions or cache content."
+    },
+    "dedupe": "Dedupe hits",
+    "missingWarn": "Missing blobs",
+    "filter": {
+      "tool": "Tool",
+      "toolPlaceholder": "Filter by tool name",
+      "recoverable": "Recoverable",
+      "all": "All",
+      "recoverableOnly": "Recoverable",
+      "notRecoverable": "Not recoverable"
+    },
+    "table": {
+      "tool": "Tool",
+      "original": "Original",
+      "compressed": "Compressed",
+      "compression": "Compression",
+      "mode": "Mode",
+      "session": "Session",
+      "time": "Time",
+      "recoverable": "Recoverable"
+    },
+    "mode": {
+      "off": "Off",
+      "observe": "Observe",
+      "on": "Auto-compress"
+    },
+    "recoverable": {
+      "yes": "Recoverable",
+      "no": "Not recoverable"
+    },
+    "empty": "No cached tool outputs yet — one large tool output records automatically",
+    "openViewer": "Open original",
+    "viewer": {
+      "title": "Tool output source",
+      "blobId": "Blob ID",
+      "hash": "Hash",
+      "size": "Size",
+      "type": "Type",
+      "tool": "Tool",
+      "session": "Session",
+      "time": "Time",
+      "summary": "Summary",
+      "summaryEmpty": "(Summary appears once content loads)",
+      "notRecoverable": "The original blob is missing or was pruned, so it cannot be shown.",
+      "emptyContent": "This segment has no content to show.",
+      "range": "Range",
+      "total": "Total",
+      "prev": "Previous",
+      "next": "Next",
+      "close": "Close"
+    }
+  },
+  "context": {
+    "sessionLabel": "Session",
+    "sessionDefault": "Latest active session",
+    "refreshAnalysis": "Refresh analysis",
+    "mode": {
+      "off": "Off",
+      "dry-run": "Detect only (dry-run)"
+    },
+    "readOnly": "Read-only",
+    "protected": "Protected",
+    "cards": {
+      "nodes": "Surface nodes",
+      "tokens": "Estimated tokens",
+      "candidates": "Candidates",
+      "savings": "Potential savings",
+      "riskyHint": "risky"
+    },
+    "help": {
+      "page": "Detect only, never rewrite. This page analyses duplicate content and KV-cache risk in the current context and defaults to dry-run. Rewriting context breaks the cached prefix, which usually costs more than the tokens saved, so Phase 3 ships no automatic rewriting. “Record dry-run suggestions” only writes candidates to local records and never touches the session.",
+      "nodes": "Surface nodes = number of messages or segments in this request context (system / developer / user / assistant / tool).",
+      "tokens": "Context tokens estimated from character counts, not an official billing figure.",
+      "candidates": "Removable duplicated content items; a contentHash must reach the minimum occurrence threshold to be counted.",
+      "savings": "Estimated tokens saved if every candidate were removed; the extra cost of an invalidated KV cache is not deducted.",
+      "composition": "Context share by role and by source. Protected sources (system / user / dsh-mnemon …) can never become removal candidates.",
+      "candidateTable": "Click a candidate row to expand where it appears (turn / step / seq / tokens). The risk badge shows safe / risky / unknown plus the reason.",
+      "history": "History of recorded dry-run suggestions. Local records only; nothing is ever rewritten."
+    },
+    "section": {
+      "composition": "Context composition",
+      "candidates": "Duplicate candidates",
+      "history": "Optimization history"
+    },
+    "roleBar": "By role",
+    "sources": "By source",
+    "role": {
+      "system": "System",
+      "developer": "Developer",
+      "user": "User",
+      "assistant": "Assistant",
+      "tool": "Tool"
+    },
+    "kind": {
+      "tool-result": "Tool result",
+      "file-content": "File content"
+    },
+    "table": {
+      "kind": "Kind",
+      "subject": "Subject",
+      "occurrences": "Occurrences",
+      "removable": "Removable",
+      "risk": "Cache risk",
+      "advice": "Advice"
+    },
+    "risk": {
+      "safe": "Safe",
+      "risky": "Risky",
+      "unknown": "Unknown"
+    },
+    "advice": {
+      "recommend": "Recommended",
+      "avoid": "Not advised"
+    },
+    "occ": {
+      "title": "Occurrences",
+      "riskLine": "Risk reason",
+      "seq": "seq",
+      "turn": "Turn",
+      "step": "Step",
+      "role": "Role",
+      "source": "Source",
+      "tokens": "tokens",
+      "bytes": "Bytes",
+      "costLine": "Saving / extra cost"
+    },
+    "totalRows": "Total",
+    "recordDryRun": "Record dry-run suggestions",
+    "recordedNote": "Recorded {n} suggestions",
+    "emptySession": "This session has no analysable context yet — send a turn, then refresh",
+    "emptyCandidates": "No removable duplicates found",
+    "emptyHistory": "No dry-run records yet — use the button above to record one",
+    "emptyComposition": "No composition data yet",
+    "verified": "verified",
+    "history": {
+      "time": "Time",
+      "type": "Type",
+      "original": "Original",
+      "optimized": "Optimized",
+      "savings": "Estimated savings",
+      "cacheImpact": "Cache impact",
+      "status": "Status"
+    }
+  },
+  "taskdetail": {
+    "title": "Task detail",
+    "help": "This drawer summarises the task metrics, the nine summary fields, write/command aggregation, findings and call details. “Auto-generated (local)” means the text came from a local draft; saving turns it into an edited version. Exports read local data only.",
+    "openReport": "Cost analysis",
+    "close": "Close",
+    "notFound": "Task not found or has no detail data",
+    "name": "Task name",
+    "metrics": {
+      "calls": "Calls",
+      "total": "Total tokens",
+      "cost": "Estimated cost",
+      "duration": "Duration"
+    },
+    "buckets": {
+      "missInput": "Cache-miss input",
+      "cacheRead": "Cache read",
+      "cacheWrite": "Cache write",
+      "output": "Output"
+    },
+    "summary": "Task summary",
+    "summaryHelp": "The nine summary fields record the objective, output and next steps of the task. They stay in the local database and can be exported as JSON/Markdown/CSV; nothing is written to the session log or mnemon.",
+    "autoDraft": "Auto-generated (local)",
+    "edited": "Edited",
+    "unsaved": "Unsaved",
+    "savedState": "Saved",
+    "saved": "Summary saved",
+    "saveSummary": "Save summary",
+    "writes": {
+      "tool": "Tool",
+      "target": "Target",
+      "command": "Command",
+      "count": "Count"
+    },
+    "helpWrites": "Aggregates files written and commands executed by this task, grouped by tool and target, for reviewing the actual change scope.",
+    "toolCalls": "tool calls",
+    "emptyWrites": "No file or command changes yet",
+    "findings": "Findings",
+    "helpFindings": "Read-only analysis results for this task (repeated reads, repeated builds, step inflation, cost anomalies …).",
+    "emptyFindings": "No findings",
+    "calls": "Calls (first 50)",
+    "helpCalls": "Lists the model calls of this task by time, up to 50 rows. Use the Calls tab filtered by task for the full list.",
+    "emptyCalls": "No calls",
+    "export": "Export",
+    "writesTitle": "Writes / commands"
+  },
+  "summary": {
+    "task": {
+      "objective": "Objective",
+      "completed": "Completed work",
+      "decisions": "Key decisions",
+      "files": "Changed files",
+      "apiChanges": "API changes",
+      "tests": "Test results",
+      "pending": "Open items",
+      "nextSteps": "Next steps",
+      "tokenStats": "Token usage"
+    }
+  },
+  "projects": {
+    "title": "Projects",
+    "help": {
+      "list": "Projects aggregate sessions and tasks by working directory. The summary status shows whether a saved summary version exists; draft suggestions are generated locally."
+    },
+    "empty": "No projects yet — they appear after the first conversation",
+    "open": "Open project summary",
+    "table": {
+      "project": "Project path",
+      "sessions": "Sessions",
+      "tasks": "Tasks",
+      "calls": "Calls",
+      "tokens": "Tokens",
+      "cost": "Cost",
+      "lastActivity": "Last activity",
+      "summary": "Summary"
+    },
+    "summary": {
+      "saved": "Saved",
+      "draft": "Draft",
+      "none": "No summary"
+    },
+    "editor": {
+      "title": "Project summary",
+      "help": "The eight project summary sections are stored locally to record the project state and constraints. Drafts are generated locally; saving an edited version creates a new version with an incremented number and replaces the previous draft. Nothing is written to mnemon or the session log.",
+      "close": "Close",
+      "save": "Save summary",
+      "savedNote": "Saved",
+      "draftHint": "These are locally generated draft suggestions; save to create a version",
+      "draftSuggestions": "Draft suggestions",
+      "applyDraft": "Apply all drafts",
+      "helpDraft": "Draft suggestions are local reference text; applying fills the sections, and saving is still required."
+    },
+    "section": {
+      "overview": "Overview",
+      "architecture": "Architecture",
+      "database": "Database",
+      "apis": "Key APIs",
+      "completed": "Completed modules",
+      "status": "Current status",
+      "pending": "Open items",
+      "constraints": "User constraints"
+    }
+  },
+  "live.today": "Today",
+  "live.session": "Session",
+  "live.saved": "Saved (est.)",
+  "live.savedCost": "Saved cost",
+  "live.priceUnset": "Price not set",
+  "live.loadReference": "Load reference prices",
+  "live.referenceNone": "No matching reference price — set it manually in Settings",
+  "live.hide": "Hide live strip",
+  "live.hint": "Live counters: today / session tokens, estimated tokens saved by compression, and cost. Local data, refreshed every 5s.",
+  "live.loading": "Loading"
+}
