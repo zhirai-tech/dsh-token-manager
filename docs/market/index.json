@@ -32,7 +32,7 @@
           "source": {
             "type": "git",
             "url": "https://github.com/zhirai-tech/dsh-token-manager",
-            "commit": "f75dc0a34ee4c277cea4ff6638b7d459df296e32"
+            "commit": "c84e2a0f38856609009f3f32f226c7d8f27caefb"
           },
           "engines": {
             "dsh": ">=0.2.0-rc.5"
