@@ -1,8 +1,8 @@
 {
   "panel": {
-    "label": "Token Monitor",
-    "title": "Token Cost Monitor",
-    "help": "Read-only monitoring of DSH token usage and cost: four buckets (cache-miss input / cache read / cache write / output), cache hit rate, per-task cost and anomaly analysis. All data stays local in DSH_HOME/dsh-token-manager and is never uploaded. Phase 1 only analyses: it never rewrites context or limits model calls."
+    "label": "ControlX",
+    "title": "ControlX · AI Resource Optimization Engine",
+    "help": "ControlX monitors token usage, chooses the reasoning effort automatically (AUTO), compresses and reuses tool output, and analyses cost and waste. All data stays local."
   },
   "tabs": {
     "label": "Tabs",
@@ -104,7 +104,11 @@
     },
     "empty": "No calls yet — run one model call and data appears here",
     "emptyRank": "No ranking data yet",
-    "importedSessions": "Imported {n} historical sessions"
+    "importedSessions": "Imported {n} historical sessions",
+    "auto": {
+      "title": "AUTO reasoning",
+      "help": "AUTO versus manual token / cost / success-rate comparison, plus the effort distribution of AUTO decisions. Shows an empty state until the host endpoints are ready."
+    }
   },
   "calls": {
     "filter": {
@@ -263,7 +267,14 @@
     "suggestions": "Suggestions",
     "noSuggestions": "No suggestions",
     "baselineTitle": "Baseline",
-    "topCallsTitle": "Top cost calls"
+    "topCallsTitle": "Top cost calls",
+    "auto": {
+      "title": "AUTO vs manual",
+      "help": "Input / output / reasoning / cache-read tokens, cost, task success rate and average tokens per task, split by whether a call ran under AUTO or manual mode. Cost needs the price table on the Settings page; without a price it shows 'Price not configured'.",
+      "historyTitle": "Recent AUTO decisions",
+      "historyHelp": "The latest 20 AUTO decisions: session, turn/step, action, effort change, stage, reasons and whether it was applied. In monitor-only mode applied reads 'Recorded only'.",
+      "globalHint": "No task selected: below is the global AUTO comparison"
+    }
   },
   "settings": {
     "savedState": "Save state",
@@ -278,7 +289,8 @@
       "prices": "Prices",
       "data": "Data",
       "compression": "Tool output cache",
-      "context": "Context analysis"
+      "context": "Context analysis",
+      "auto": "AUTO reasoning"
     },
     "help": {
       "capture": "The capture switch controls whether usage is recorded. Observe-only keeps analysis non-intervening. The evidence limit caps how much text findings may keep.",
@@ -287,7 +299,8 @@
       "prices": "Configure the four bucket prices per provider + model. The unit is the billing unit (default 1,000,000 tokens). Costs are local estimates, not real bills.",
       "data": "The projection-cache import is read-only and never modifies sessions. CSV export includes a UTF-8 BOM and formula-injection escaping.",
       "compression": "Compresses long tool results and replaces them with a summary to save context tokens. Replacements are written to the session log (visible in history), while the full original stays in a local blob and can be restored any time. Observe mode records and stores without replacing what the model sees. Phase 2 defaults to observe mode.",
-      "context": "Detect only, never rewrite. Analyses duplicate content in the current context and estimates savings versus KV-cache risk; dry-run by default. Thresholds and the risk factor drive candidate and risk decisions; when no price is configured the cache-read ratio estimates risk cost."
+      "context": "Detect only, never rewrite. Analyses duplicate content in the current context and estimates savings versus KV-cache risk; dry-run by default. Thresholds and the risk factor drive candidate and risk decisions; when no price is configured the cache-read ratio estimates risk cost.",
+      "auto": "AUTO classifies task difficulty from local events only and never calls a model for this. Picking a tier manually exits AUTO. Initial effort may only be OFF/LOW and escalation is one level at a time; environment failures (path, permission, dependency, network) never escalate. Monitor-only records decisions without switching the tier."
     },
     "enabled": "Capture usage",
     "observeOnly": "Observe only",
@@ -319,6 +332,22 @@
       "cacheDropFactor": "Cache drop factor",
       "costAnomalyFactor": "Cost anomaly factor",
       "minBaselineSamples": "Min baseline samples"
+    },
+    "auto": {
+      "on": "Enabled",
+      "off": "Disabled",
+      "monitorBadge": "Monitor only",
+      "enabled": "Enable AUTO reasoning",
+      "includeSubagents": "Include subagent sessions",
+      "monitorOnly": "Monitor only (record, do not apply)",
+      "resetOnNewTurn": "Re-classify on each new task",
+      "initial": "Initial effort",
+      "initialHelp": "Per task type, set AUTO's starting effort. Only OFF/LOW are allowed: a task never starts at HIGH/MAX. The initial cap applies to every type.",
+      "maxInitial": "Initial effort cap",
+      "reasoningFailuresToEscalate": "Reasoning failures to escalate",
+      "filesForComplex": "Files for a complex task",
+      "maxStepsWithoutProgress": "Max steps without progress",
+      "maxEscalationsPerTask": "Max escalations per task"
     },
     "price": {
       "provider": "Provider",
@@ -639,6 +668,104 @@
       "constraints": "User constraints"
     }
   },
+  "auto": {
+    "help": "AUTO reasoning: classifies each task from local signals and starts at OFF/LOW; only reasoning failures escalate one level (OFF → LOW → HIGH → MAX), while environment failures (path, permission, dependency, network) never escalate. Local rules only, no extra model calls; picking a tier manually exits AUTO.",
+    "chipTitle": "AUTO status: the reasoning tier follows task difficulty; choosing a tier manually exits AUTO",
+    "mode": {
+      "auto": "AUTO",
+      "manual": "Manual",
+      "off": "Off",
+      "unknown": "Unknown"
+    },
+    "effort": {
+      "off": "Off",
+      "low": "Low",
+      "high": "High",
+      "max": "Max"
+    },
+    "effortShort": {
+      "off": "Off",
+      "low": "Low",
+      "high": "High",
+      "max": "Max"
+    },
+    "menu": {
+      "aria": "Open the AUTO reasoning menu",
+      "title": "AUTO reasoning",
+      "groupAuto": "Automatic",
+      "auto": "AUTO",
+      "autoHint": "Pick a tier per task; escalate only on reasoning failures",
+      "manual": "Manual tier",
+      "decision": "Latest decision",
+      "stage": "stage",
+      "noDecision": "No decisions yet",
+      "unavailable": "AUTO service is not ready (host endpoints disabled)",
+      "working": "Working…"
+    },
+    "manualFallback": "AUTO exited, but the official tier entry is unavailable; confirm the tier in the model selector.",
+    "manualFailed": "Exiting AUTO failed and the official tier entry is unavailable; check the service state.",
+    "estimated": "Est.",
+    "kpi": {
+      "saved": "Saved",
+      "extra": "Extra",
+      "savedVsManual": "Saved vs manual",
+      "extraVsManual": "Extra vs manual",
+      "autoManual": "AUTO / manual",
+      "savedHint": "Manual − AUTO; positive means AUTO saves",
+      "savedHelp": "Difference in average tokens per task (manual − AUTO); positive means AUTO saves.",
+      "noBaseline": "No baseline"
+    },
+    "unavailable": "AUTO data is not ready: the host /auto/* endpoints are not enabled yet.",
+    "action": {
+      "classify": "Classify",
+      "escalate": "Escalate",
+      "hold": "Hold",
+      "reset": "Reset",
+      "manual-exit": "Manual exit",
+      "skip": "Skip"
+    },
+    "compare": {
+      "title": "AUTO vs manual",
+      "metric": "Metric",
+      "tasks": "Tasks",
+      "calls": "Calls",
+      "inputTokens": "Cache-miss input",
+      "cacheReadTokens": "Cache read",
+      "outputTokens": "Output",
+      "reasoningTokens": "Reasoning tokens",
+      "reasoningNote": "Reasoning tokens: use the API value when available; otherwise estimate them from reasoning content blocks and mark them as estimated.",
+      "estimatedSuffix": "(est.)",
+      "estimatedTitle": "Estimated value: the API did not return reasoning tokens, so this is estimated from reasoning content blocks (not an API value).",
+      "groupUsage": "Usage",
+      "groupEfficiency": "Efficiency",
+      "totalHelp": "Total-token comparison between AUTO and manual. The AUTO column carries an 'Est.' badge when it includes estimated reasoning tokens.",
+      "callsHelp": "Number of calls. One AUTO task may span several calls, so this differs from the task count.",
+      "successHint": "Completed ÷ total turns",
+      "tableTitle": "Metrics",
+      "totalTokens": "Total tokens",
+      "cost": "Estimated cost",
+      "successRate": "Task success rate",
+      "avgTokensPerTask": "Avg tokens / task",
+      "effortDistribution": "Effort distribution",
+      "noEffort": "No effort data yet",
+      "estimates": "Includes estimates",
+      "decisionsUnit": "decisions",
+      "escalationsUnit": "escalations"
+    },
+    "history": {
+      "empty": "No AUTO decisions yet",
+      "time": "Time",
+      "session": "Session",
+      "task": "Task",
+      "action": "Action",
+      "effort": "Effort",
+      "stage": "Stage",
+      "reason": "Reason",
+      "applied": "Applied",
+      "appliedYes": "Applied",
+      "appliedNo": "Recorded only"
+    }
+  },
   "live.today": "Today",
   "live.session": "Session",
   "live.saved": "Saved (est.)",
@@ -648,5 +775,18 @@
   "live.referenceNone": "No matching reference price — set it manually in Settings",
   "live.hide": "Hide live strip",
   "live.hint": "Live counters: today / session tokens, estimated tokens saved by compression, and cost. Local data, refreshed every 5s.",
-  "live.loading": "Loading"
+  "live.loading": "Loading",
+  "live.calls": "Calls",
+  "live.sessionTokens": "Session tokens",
+  "live.context": "Context",
+  "live.ofWindow": "of window",
+  "live.compressMarker": "Compression line (hint only): this plugin never compacts history",
+  "live.show": "Show usage strip",
+  "auto.labelTagTitle": "AUTO is choosing the reasoning effort",
+  "brand": {
+    "zhName": "智控引擎",
+    "enName": "ControlX",
+    "tagline": "AI Resource Optimization Engine",
+    "slogan": "Make AI Work Smarter, Not Harder."
+  }
 }

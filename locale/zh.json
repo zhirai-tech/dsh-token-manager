@@ -1,8 +1,8 @@
 {
   "panel": {
-    "label": "Token 监控",
-    "title": "Token 成本监控",
-    "help": "只读监控 DSH 会话的模型 Token 用量与费用：四桶拆分（未命中输入 / 缓存命中 / 缓存写入 / 输出）、缓存命中率、任务成本与异常分析。所有数据保存在本地 DSH_HOME/dsh-token-manager，不上传任何服务器。Phase 1 只做分析，不修改上下文、不限制模型调用。"
+    "label": "智控引擎 ControlX",
+    "title": "智控引擎 ControlX · AI 资源优化引擎",
+    "help": "智控引擎 ControlX 监控 Token 用量、自动选择推理档位（AUTO）、压缩与复用工具输出、分析成本与浪费；数据全部保存在本地。"
   },
   "tabs": {
     "label": "标签",
@@ -104,7 +104,11 @@
     },
     "empty": "还没有调用记录，产生一次模型调用后这里自动出现数据",
     "emptyRank": "暂无排行数据",
-    "importedSessions": "已导入 {n} 个历史会话"
+    "importedSessions": "已导入 {n} 个历史会话",
+    "auto": {
+      "title": "AUTO 自动推理",
+      "help": "AUTO 与手动模式的 Token / 费用 / 成功率对比，以及 AUTO 决策的档位分布；host 接口未就绪时显示空态。"
+    }
   },
   "calls": {
     "filter": {
@@ -263,7 +267,14 @@
     "suggestions": "建议",
     "noSuggestions": "暂无建议",
     "baselineTitle": "基线对比",
-    "topCallsTitle": "Top 成本调用"
+    "topCallsTitle": "Top 成本调用",
+    "auto": {
+      "title": "AUTO vs 手动对比",
+      "help": "按调用记录归属统计 AUTO 与手动模式的输入 / 输出 / 推理 / 缓存命中 Token、费用、任务成功率与平均每任务消耗；费用依赖设置页价格表，未配置价格时显示「价格未配置」。",
+      "historyTitle": "最近 AUTO 决策",
+      "historyHelp": "最近 20 条 AUTO 决策：会话、轮/步、动作、档位变化、阶段、原因与是否真正生效；观察模式下 applied 显示「仅记录」。",
+      "globalHint": "未选择任务：以下为 AUTO 全局对比"
+    }
   },
   "settings": {
     "savedState": "保存状态",
@@ -278,7 +289,8 @@
       "prices": "价格表",
       "data": "数据",
       "compression": "工具输出缓存",
-      "context": "上下文分析"
+      "context": "上下文分析",
+      "auto": "AUTO 自动推理"
     },
     "help": {
       "capture": "采集开关决定是否记录用量；观察模式确保只分析、不干预调用；证据文本上限限制 findings 中保存的文本长度。",
@@ -287,7 +299,8 @@
       "prices": "按 provider + 模型配置四桶单价；单位 tokens 是计价单位（默认 1,000,000）。只做本地估算费用，不产生真实账单。",
       "data": "历史投影缓存导入只读，不会修改任何会话；导出 CSV 含 UTF-8 BOM 与公式注入转义。",
       "compression": "把超长工具结果压缩并替换为摘要，节省上下文 Token：替换会写入会话日志（会话历史里能看到），原文完整保存在本地 blob，可随时恢复查看；观察模式只记录与存储、不替换模型可见内容。Phase 2 默认观察模式。",
-      "context": "只检测、不改写：分析当前上下文的重复内容，估算移除后的节省与 KV Cache 风险，默认 dry-run。阈值与风险倍数决定候选与风险判定；未配置价格时用「缓存读取价格比例」估算风险成本。"
+      "context": "只检测、不改写：分析当前上下文的重复内容，估算移除后的节省与 KV Cache 风险，默认 dry-run。阈值与风险倍数决定候选与风险判定；未配置价格时用「缓存读取价格比例」估算风险成本。",
+      "auto": "AUTO 只依据本地事件判断任务难度，不额外调用模型；手动选择档位后会退出 AUTO。初始档位只能是 OFF/LOW，升级一次一档；环境类失败（路径、权限、依赖、网络）不会升级。观察模式只记录决策，不真正切换档位。"
     },
     "enabled": "采集开关",
     "observeOnly": "观察模式",
@@ -319,6 +332,22 @@
       "cacheDropFactor": "缓存命中下降倍数",
       "costAnomalyFactor": "成本异常倍数",
       "minBaselineSamples": "基线最少样本"
+    },
+    "auto": {
+      "on": "已启用",
+      "off": "未启用",
+      "monitorBadge": "仅观察",
+      "enabled": "启用 AUTO 自动推理",
+      "includeSubagents": "子 Agent 也纳入 AUTO",
+      "monitorOnly": "观察模式（只记录不生效）",
+      "resetOnNewTurn": "新任务重新判断",
+      "initial": "初始档位",
+      "initialHelp": "按任务类型设定 AUTO 的起始档位：只允许 OFF/LOW，任务开始不得直接 HIGH/MAX；初始上限对所有类型生效。",
+      "maxInitial": "初始档位上限",
+      "reasoningFailuresToEscalate": "推理失败升级次数",
+      "filesForComplex": "复杂任务文件数",
+      "maxStepsWithoutProgress": "最大无进展步数",
+      "maxEscalationsPerTask": "单任务最大升级"
     },
     "price": {
       "provider": "Provider",
@@ -639,6 +668,104 @@
       "constraints": "用户明确限制"
     }
   },
+  "auto": {
+    "help": "AUTO 自动推理：按每个任务的实际信号判断难度，从 OFF/LOW 起步；只有推理性失败才会逐级升级（OFF → LOW → HIGH → MAX），环境类失败（路径、权限、依赖、网络等）不升级。全程只用本地规则，不额外调用模型；手动选择档位后会退出 AUTO。",
+    "chipTitle": "AUTO 状态：按任务难度自动选择推理档位；手动选择档位后退出 AUTO",
+    "mode": {
+      "auto": "AUTO",
+      "manual": "手动",
+      "off": "关闭",
+      "unknown": "未知"
+    },
+    "effort": {
+      "off": "关闭推理",
+      "low": "低推理",
+      "high": "高推理",
+      "max": "最高推理"
+    },
+    "effortShort": {
+      "off": "关",
+      "low": "低",
+      "high": "高",
+      "max": "最高"
+    },
+    "menu": {
+      "aria": "打开 AUTO 自动推理菜单",
+      "title": "AUTO 自动推理",
+      "groupAuto": "自动",
+      "auto": "AUTO",
+      "autoHint": "按任务难度自动选择档位，仅推理性失败升级",
+      "manual": "手动档位",
+      "decision": "最近决策",
+      "stage": "阶段",
+      "noDecision": "暂无决策记录",
+      "unavailable": "AUTO 服务未就绪（host 接口尚未启用）",
+      "working": "处理中…"
+    },
+    "manualFallback": "已退出 AUTO，但官方档位入口暂不可用；请用模型选择器确认档位。",
+    "manualFailed": "退出 AUTO 失败，且官方档位入口不可用；请检查服务状态。",
+    "estimated": "估算",
+    "kpi": {
+      "saved": "节省",
+      "extra": "多耗",
+      "savedVsManual": "较手动节省",
+      "extraVsManual": "较手动多耗",
+      "autoManual": "AUTO / 手动",
+      "savedHint": "手动 − AUTO；正数表示 AUTO 更省",
+      "savedHelp": "手动与 AUTO 平均每任务 Token 之差；正数表示 AUTO 更省。",
+      "noBaseline": "暂无基准"
+    },
+    "unavailable": "AUTO 数据未就绪：host 的 /auto/* 接口尚未启用。",
+    "action": {
+      "classify": "初始判定",
+      "escalate": "升级",
+      "hold": "保持",
+      "reset": "复位",
+      "manual-exit": "手动退出",
+      "skip": "跳过"
+    },
+    "compare": {
+      "title": "AUTO vs 手动",
+      "metric": "指标",
+      "tasks": "任务数",
+      "calls": "调用数",
+      "inputTokens": "未命中输入",
+      "cacheReadTokens": "缓存命中",
+      "outputTokens": "输出",
+      "reasoningTokens": "推理 Token",
+      "reasoningNote": "推理 Token：优先使用 API 返回值；API 未返回时按 reasoning 内容块估算并标注「估算」。",
+      "estimatedSuffix": "（估算）",
+      "estimatedTitle": "估算值：API 未返回推理 token，按 reasoning 内容块估算（非 API 值）",
+      "groupUsage": "用量",
+      "groupEfficiency": "效率",
+      "totalHelp": "AUTO 与手动模式的 Token 合计对比；AUTO 列含估算推理 token 时带「估算」徽标。",
+      "callsHelp": "调用次数；AUTO 一个任务可能包含多步调用，因此与任务数不同。",
+      "successHint": "已完成 ÷ 总轮次",
+      "tableTitle": "指标对比",
+      "totalTokens": "Token 合计",
+      "cost": "估算费用",
+      "successRate": "任务成功率",
+      "avgTokensPerTask": "平均每任务",
+      "effortDistribution": "档位分布",
+      "noEffort": "暂无档位数据",
+      "estimates": "含估算值",
+      "decisionsUnit": "条决策",
+      "escalationsUnit": "次升级"
+    },
+    "history": {
+      "empty": "暂无 AUTO 决策记录",
+      "time": "时间",
+      "session": "会话",
+      "task": "任务",
+      "action": "动作",
+      "effort": "档位",
+      "stage": "阶段",
+      "reason": "原因",
+      "applied": "生效",
+      "appliedYes": "已生效",
+      "appliedNo": "仅记录"
+    }
+  },
   "live.today": "今日",
   "live.session": "本会话",
   "live.saved": "已省（估算）",
@@ -648,5 +775,18 @@
   "live.referenceNone": "无匹配参考价，请到设置手动填写",
   "live.hide": "隐藏实时条",
   "live.hint": "实时统计：今日 / 本会话 Token、压缩节省（估算）与费用；数据本地采集，每 5 秒刷新",
-  "live.loading": "加载中"
+  "live.loading": "加载中",
+  "live.calls": "调用",
+  "live.sessionTokens": "本会话累计",
+  "live.context": "上下文",
+  "live.ofWindow": "占窗口",
+  "live.compressMarker": "压缩触发线（仅提示）：本插件不自动压缩会话历史",
+  "live.show": "显示用量条",
+  "auto.labelTagTitle": "AUTO 自动推理正在接管推理档位",
+  "brand": {
+    "zhName": "智控引擎",
+    "enName": "ControlX",
+    "tagline": "AI Resource Optimization Engine",
+    "slogan": "让 AI 更聪明地使用资源。"
+  }
 }

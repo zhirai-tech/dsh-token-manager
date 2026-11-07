@@ -1,9 +1,7 @@
-﻿# Source code (not published)
+# 源码与测试不随插件包发布（Sources are not published）
 
-This is a **distribution repository**. The TypeScript sources of DSH Token Manager are **not included** here.
+本目录是插件的 TypeScript 源码（Host 半 + Client 半）。发行版（GitHub 仓库 / 插件市场）只包含
+编译后的 `lib/`、语言包、文档与市场元数据，不包含源码。
 
-- The plugin is proprietary software (UNLICENSED). See `../LICENSE`.
-- What ships is the compiled, minified bundle in `../lib/`, which is what the Harness loads.
-- If you are looking for the source for auditing or contribution: it is not available; please open an issue if you need a security review summary.
-
-Thank you for understanding.
+- 构建：`node scripts/build.mjs`（Host → `lib/index.js`，Client → `lib/client.js`）
+- 测试：`node scripts/build-tests.mjs && node --test "tests/unit/*.test.mjs"`

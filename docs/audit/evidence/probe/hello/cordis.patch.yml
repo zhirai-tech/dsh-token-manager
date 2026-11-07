@@ -1,0 +1,4 @@
+- insert:
+    - id: token-manager-probe
+      name: dsh-token-manager-probe
+      config: {}

@@ -2,6 +2,37 @@
 
 本项目遵循“阶段交付 + 版本号”记录方式。首版 `1.0.0` 汇总 Phase 1–6 的交付内容。
 
+## 1.4.0 — 2026-11-07
+
+### Added — AUTO 自动推理调度（真实接入模型请求链路）
+- composer 模型/推理档位选择区域新增 **AUTO** 控件（AUTO / OFF / LOW / HIGH / MAX + 最近决策原因），与官方模型选择器同排；手动档位完整保留，手动选择即退出 AUTO。
+- Host 侧真实链路：`agent/inbox/inserted` 同步分类并 `agent.model.select()`（**同一任务第一步即生效**）；`agent/pre-step` 按证据升级（下一步生效）；`agent/request` 已弃用且会拒绝改档位，故完全不依赖它。
+- 自动升级规则：`OFF → LOW → HIGH → MAX` 逐级、单任务最多 3 次；只有推理性证据（写文件数/推理性失败/多方案未果/步骤兜底）才升级；**环境类失败（文件/路径/权限/依赖/网络/命令/测试环境/外部 API）绝不升级**；新任务重新判断、不继承上一任务档位；`monitorOnly` 只记录不生效；子 Agent 可纳入或排除。
+- 决策留痕：`auto_decisions` / `auto_sessions` 两表 + HTTP `/token-manager/api/auto/{status,enable,manual,classify,decisions,summary}`；「成本分析」页新增 AUTO vs 手动对比、档位分布与最近决策；设置页新增 AUTO 区块（开关/初始档位/升级阈值/观察模式/子 Agent）。
+
+### Added — Token 统计真实性
+- `usage_records` 新增 5 列（幂等迁移，旧库与新库都走 PRAGMA/ALTER）：`usage_basis`（api/estimated/missing）、`effort_source`（explicit/adapter-default/auto）、`reasoning_source`（api/estimated/NULL）、`reasoning_estimated`、`usage_partial`。
+- 推理 Token 优先级：API `reasoningTokens` → 真实值；**本构建的 DeepSeek 适配器不返回任何 reasoning token 字段，实测恒为 NULL，不伪造 0**；否则按 reasoning 内容块/流文本量估算并标 `estimated`（报表显式展示 note）。
+- 费用：`costOfDetailed` 四桶 + 缓存 + 可选独立推理计价；估算推理不计费；缺失 usage 的行费用恒为 null。
+- 维度报表：`dimensions()` 输出按 Agent（主/子）、按档位、AUTO vs 手动、按 usage 来源、按任务，附 `estimates` 说明。
+
+### Added — 上下文与 Agent 开销优化
+- 上下文复用 `context-reuse`：同一会话内完全相同（tool+args+result 哈希一致）且 ≥512B 的工具结果，第二次起替换为含 `Blob ID` 的极小引用，可 `token_manager_read` 恢复；默认 `observe`，`on` 模式真实任务验证模型可正确理解引用。
+- 子 Agent 审计 `subagent-audit`：记录 spawn（fresh，不继承父历史）/ fork（继承历史快照）、委派 prompt 字节与估算 token、子会话 input/output/cache token，产出 `subagent_fork_history` / `subagent_prompt_oversize` 发现项。
+- 模型工具 `token_manager_context`：按需生成分层最小上下文包（项目摘要 8 段 + 任务摘要 9 段/最近决策 + 最近变更文件），受字符预算约束并显式标注省略，用于委派子 Agent 或长会话续接时替代粘贴完整历史。
+
+### Changed
+- 测试基础设施：`scripts/build-tests.mjs` 自动汇总 host/shared/storage 模块，新模块无需手动登记 harness。
+
+### Tests
+- 单元测试 231 → **339 项全部通过**；真实 DeepSeek 调用验收（A–G）见 `docs/AUTO-TEST-REPORT.md`，成本对比见 `docs/AUTO-COST-COMPARE.md`。
+
+### 已知限制（如实记录）
+- DeepSeek Messages 适配器（本构建）不提供 reasoning token 字段 → `reasoning_tokens` 恒为 NULL，只能估算并标注；`output_tokens` 是否包含推理由上游决定，插件不推断。
+- AUTO 改档位只能从「下一步」生效（`agent/pre-step` 窗口）；任务第一步只能在 prompt 进入 inbox 的同步窗口改，已验证可行但依赖该事件顺序（已在真实调用中复核）。
+- fork 子 Agent 的历史快照由 Harness 管理，插件只能审计/提示，不能删除其继承历史；独立子任务建议用 spawn + `token_manager_context`。
+- 上下文复用在 `on` 模式会改变模型可见内容（引用化），默认保持 `observe` 以最保守姿态交付。
+
 ## 1.2.0 — 2026-11-01
 
 ### Added — compression 2.0 (accuracy-first)

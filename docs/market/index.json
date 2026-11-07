@@ -1,6 +1,9 @@
 {
   "format": 1,
-  "title": { "en": "ZHIRAI plugins", "zh": "智睿插件" },
+  "title": {
+    "en": "ZHIRAI plugins",
+    "zh": "智睿插件"
+  },
   "description": {
     "en": "Plugins by ZHIRAI for DeepSeek Harness.",
     "zh": "智睿科技为 DeepSeek Harness 提供的插件。"
@@ -8,25 +11,71 @@
   "plugins": [
     {
       "name": "dsh-token-manager",
-      "title": { "en": "DSH Token Manager", "zh": "DSH Token 管理器" },
+      "title": {
+        "zh": "智控引擎 ControlX",
+        "en": "ControlX (智控引擎)"
+      },
       "description": {
-        "en": "Token cost monitoring, model-call efficiency analysis and reversible tool-output caching for DeepSeek Harness. Per-call four-bucket ledger cross-checked against official usage, 11 efficiency findings, 5 task types with historical baseline, reversible cache with token_manager_read restore, context dry-run analysis, tasks/projects with summaries and exports.",
-        "zh": "DeepSeek Harness 的 Token 成本监控、模型调用效率分析与可逆工具输出缓存。逐调用四桶台账并与官方用量交叉核对，11 类效率发现，5 类任务与历史基线，可逆缓存与 token_manager_read 原文恢复，上下文 dry-run 分析，任务/项目摘要与导出。"
+        "zh": "面向 AI Agent 的智能资源调度与效率优化引擎，通过动态推理控制、上下文优化、缓存管理与资源调度，让 AI 在保证任务质量的同时，以更少的资源消耗完成更多工作。",
+        "en": "An intelligent optimization engine for AI Agents, improving task efficiency through adaptive reasoning, context optimization, caching, and resource orchestration."
       },
       "icon": "icons/icon.png",
       "author": "ZHIRAI",
-      "homepage": "https://github.com/zhirai-tech/dsh-token-manager#readme",
-      "repository": { "url": "https://github.com/zhirai-tech/dsh-token-manager" },
+      "homepage": "https://github.com/zhirai-tech/dsh-token-manager",
+      "repository": {
+        "url": "https://github.com/zhirai-tech/dsh-token-manager"
+      },
       "versions": [
         {
-          "version": "1.3.3",
-          "publishTimestamp": 1793563573,
+          "version": "1.4.0",
+          "publishTimestamp": 1794082481,
           "source": {
             "type": "git",
             "url": "https://github.com/zhirai-tech/dsh-token-manager",
-            "commit": "666076f847f9918afba0544fb17a6be01c0f2b3e"
+            "commit": "0000000000000000000000000000000000000000"
           },
-          "engines": { "dsh": ">=0.2.0-rc.5" }
+          "engines": {
+            "dsh": ">=0.2.0-rc.5"
+          }
+        }
+      ],
+      "shortDescription": {
+        "zh": "面向 AI Agent 的智能资源调度与效率优化引擎：按需推理、上下文精简、缓存复用与智能调度。",
+        "en": "AI Resource Optimization Engine for AI Agents: adaptive reasoning, context optimization, cache reuse and intelligent orchestration."
+      },
+      "tagline": {
+        "zh": "AI Resource Optimization Engine",
+        "en": "AI Resource Optimization Engine"
+      },
+      "slogan": {
+        "zh": "让 AI 更聪明地使用资源。",
+        "en": "Make AI Work Smarter, Not Harder."
+      },
+      "principles": [
+        {
+          "id": "adaptive-reasoning",
+          "zh": "按需推理（Adaptive Reasoning）",
+          "en": "Adaptive Reasoning"
+        },
+        {
+          "id": "context-optimization",
+          "zh": "精简上下文（Context Optimization）",
+          "en": "Context Optimization"
+        },
+        {
+          "id": "intelligent-orchestration",
+          "zh": "智能调度（Intelligent Orchestration）",
+          "en": "Intelligent Orchestration"
+        },
+        {
+          "id": "cache-optimization",
+          "zh": "缓存复用（Cache Optimization）",
+          "en": "Cache Optimization"
+        },
+        {
+          "id": "quality-efficiency",
+          "zh": "质量与效率平衡（Quality & Efficiency）",
+          "en": "Quality & Efficiency"
         }
       ]
     }
