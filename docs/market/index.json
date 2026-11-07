@@ -28,11 +28,11 @@
       "versions": [
         {
           "version": "1.4.0",
-          "publishTimestamp": 1794083918,
+          "publishTimestamp": 1794082481,
           "source": {
             "type": "git",
             "url": "https://github.com/zhirai-tech/dsh-token-manager",
-            "commit": "c84e2a0f38856609009f3f32f226c7d8f27caefb"
+            "commit": "0000000000000000000000000000000000000000"
           },
           "engines": {
             "dsh": ">=0.2.0-rc.5"
